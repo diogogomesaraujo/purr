@@ -13,4 +13,17 @@ data Term = Var    Identity
           | App    Term Term
           | If     Term Term Term
           | Let    Identity Term Term
+          | Fix    Term
+          | Term :+  Term
+          | Term :-  Term
+          | Term :/  Term
+          | Term :*  Term
+          | Term :&& Term
+          | Term :|| Term
+          | Term :>  Term
+          | Term :>= Term
+          | Term :<  Term
+          | Term :<= Term
+          | Term :== Term
+          | Term :!= Term
           deriving Show
