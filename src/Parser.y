@@ -49,22 +49,22 @@ Expression : Conditional                                   { $1 }
            | fix Atomic                                    { Fix $2 }
 
 Conditional :: { Term }
-Conditional : Conditional '&&' Condition { App (Prim (:&&)) (App $1 $3) }
-            | Conditional '||' Condition { App (Prim (:||)) (App $1 $3) }
+Conditional : Conditional '&&' Condition { App (App (Prim (:&&)) $1) $3 }
+            | Conditional '||' Condition { App (App (Prim (:||)) $1) $3 }
             | Condition                  { $1 }
 
 Condition :: { Term }
-Condition : Condition '>'  Sum { App (Prim (:>)) (App $1 $3) }
-          | Condition '>=' Sum { App (Prim (:>=)) (App $1 $3) }
-          | Condition '<'  Sum { App (Prim (:<=)) (App $1 $3) }
-          | Condition '<=' Sum { App (Prim (:<)) (App $1 $3) }
-          | Condition '==' Sum { App (Prim (:==)) (App $1 $3) }
-          | Condition '!=' Sum { App (Prim (:!=)) (App $1 $3) }
+Condition : Condition '>'  Sum { App (App (Prim (:>)) $1) $3 }
+          | Condition '>=' Sum { App (App (Prim (:>=)) $1) $3 }
+          | Condition '<'  Sum { App (App (Prim (:<)) $1) $3 }
+          | Condition '<=' Sum { App (App (Prim (:<=)) $1) $3 }
+          | Condition '==' Sum { App (App (Prim (:==)) $1) $3}
+          | Condition '!=' Sum { App (App (Prim (:!=)) $1) $3 }
           | Sum                { $1 }
 
 Sum :: { Term }
-Sum : Sum '+' Multiplication { App (Prim (:+)) (App $1 $3) }
-    | Sum '-' Multiplication { App (Prim (:-)) (App $1 $3) }
+Sum : Sum '+' Multiplication { App (App (Prim (:+)) $1) $3 }
+    | Sum '-' Multiplication { App (App (Prim (:-)) $1) $3 }
     | Multiplication { $1 }
 
 Multiplication :: { Term }

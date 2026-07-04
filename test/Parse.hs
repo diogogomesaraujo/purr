@@ -17,7 +17,8 @@ testLexParse str term = TestCase $ assertEqual
 testIncr :: Test
 testIncr =
     let incrStr  = "let incr := fn x -> x + 1 in incr 1"
-        incrTerm = Let "incr"
-                    (Lambda "x" $ App (Prim (:+)) (App (Var "x") (Const $ CInt 1)))
-                    (App (Var "incr") (Const $ CInt 1))
+        incrTerm  = Let "incr"
+            (Lambda "x" $
+                App (App (Prim (:+)) (Var "x")) (Const (CInt 1)))
+            (App (Var "incr") (Const (CInt 1)))
     in testLexParse incrStr incrTerm
