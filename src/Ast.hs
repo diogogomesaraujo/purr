@@ -7,6 +7,20 @@ data Constant = CInt   Int
               | CBool  Bool
               deriving (Show, Eq)
 
+data Operation = (:+)
+               | (:-)
+               | (:/)
+               | (:*)
+               | (:&&)
+               | (:||)
+               | (:>)
+               | (:>=)
+               | (:<)
+               | (:<=)
+               | (:==)
+               | (:!=)
+               deriving (Show, Eq)
+
 data Term = Var    Identity
           | Const  Constant
           | Lambda Identity Term
@@ -14,16 +28,5 @@ data Term = Var    Identity
           | If     Term Term Term
           | Let    Identity Term Term
           | Fix    Term
-          | Term :+  Term
-          | Term :-  Term
-          | Term :/  Term
-          | Term :*  Term
-          | Term :&& Term
-          | Term :|| Term
-          | Term :>  Term
-          | Term :>= Term
-          | Term :<  Term
-          | Term :<= Term
-          | Term :== Term
-          | Term :!= Term
+          | Prim   Operation
           deriving (Show, Eq)

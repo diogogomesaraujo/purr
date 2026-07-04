@@ -8,13 +8,16 @@ import Ast
 parseTests :: [Test]
 parseTests = [testIncr]
 
+testLexParse :: String -> Term -> Test
+testLexParse str term = TestCase $ assertEqual
+        ("lex and parse " ++ str)
+        (parse $ alexScanTokens str)
+        term
+
 testIncr :: Test
 testIncr =
     let incrStr  = "let incr := fn x -> x + 1 in incr 1"
         incrTerm = Let "incr"
-                    (Lambda "x" $ Var "x" :+ (Const $ CInt 1))
+                    (Lambda "x" $ App (Prim (:+)) (App (Var "x") (Const $ CInt 1)))
                     (App (Var "incr") (Const $ CInt 1))
-    in TestCase $ assertEqual
-        "lex and parse \"let incr := fn x -> x + 1 in incr 1\""
-        (parse $ alexScanTokens incrStr)
-        incrTerm
+    in testLexParse incrStr incrTerm

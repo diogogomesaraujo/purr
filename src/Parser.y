@@ -2,6 +2,7 @@
 module Parser where
 import Ast
 import Token
+import Err
 }
 
 %name parse
@@ -48,27 +49,27 @@ Expression : Conditional                                   { $1 }
            | fix Atomic                                    { Fix $2 }
 
 Conditional :: { Term }
-Conditional : Conditional '&&' Condition { $1 :&& $3 }
-            | Conditional '||' Condition { $1 :|| $3 }
+Conditional : Conditional '&&' Condition { App (Prim (:&&)) (App $1 $3) }
+            | Conditional '||' Condition { App (Prim (:||)) (App $1 $3) }
             | Condition                  { $1 }
 
 Condition :: { Term }
-Condition : Condition '>'  Sum { $1 :>  $3 }
-          | Condition '>=' Sum { $1 :>= $3 }
-          | Condition '<'  Sum { $1 :<  $3 }
-          | Condition '<=' Sum { $1 :<= $3 }
-          | Condition '==' Sum { $1 :== $3 }
-          | Condition '!=' Sum { $1 :!= $3 }
+Condition : Condition '>'  Sum { App (Prim (:>)) (App $1 $3) }
+          | Condition '>=' Sum { App (Prim (:>=)) (App $1 $3) }
+          | Condition '<'  Sum { App (Prim (:<=)) (App $1 $3) }
+          | Condition '<=' Sum { App (Prim (:<)) (App $1 $3) }
+          | Condition '==' Sum { App (Prim (:==)) (App $1 $3) }
+          | Condition '!=' Sum { App (Prim (:!=)) (App $1 $3) }
           | Sum                { $1 }
 
 Sum :: { Term }
-Sum : Sum '+' Multiplication { $1 :+ $3 }
-    | Sum '-' Multiplication { $1 :- $3 }
+Sum : Sum '+' Multiplication { App (Prim (:+)) (App $1 $3) }
+    | Sum '-' Multiplication { App (Prim (:-)) (App $1 $3) }
     | Multiplication { $1 }
 
 Multiplication :: { Term }
-Multiplication : Multiplication '*' Application { $1 :* $3 }
-               | Multiplication '/' Application { $1 :/ $3 }
+Multiplication : Multiplication '*' Application { App (Prim (:*)) (App $1 $3) }
+               | Multiplication '/' Application { App (Prim (:/)) (App $1 $3) }
                | Application                    { $1 }
 
 Application :: { Term }
@@ -88,5 +89,5 @@ AtomicConstant : int   { CInt $1 }
 
 {
 parseError :: [Token] -> a
-parseError _ = error "Parse error"
+parseError t = error $ showErr $ Parsing t
 }
