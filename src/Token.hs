@@ -10,6 +10,7 @@ data Token = TokenFix
            | TokenTrue
            | TokenFalse
            | TokenAssign
+           | TokenPoints
            | TokenArrow
            | TokenPlus
            | TokenMinus

@@ -29,7 +29,8 @@ tokens :-
     false                                 { \_ -> TokenFalse }
     fn                                    { \_ -> TokenFn }
     "->"                                  { \_ -> TokenArrow }
-    ":="                                  { \_ -> TokenAssign }
+    "="                                   { \_ -> TokenAssign }
+    ":"                                   { \_ -> TokenPoints }
     "+"                                   { \_ -> TokenPlus }
     "-"                                   { \_ -> TokenMinus }
     "/"                                   { \_ -> TokenDiv }

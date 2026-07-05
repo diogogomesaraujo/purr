@@ -23,7 +23,8 @@ import Err
     sym   { TokenSym $$ }
     true  { TokenTrue }
     false { TokenFalse }
-    ':='  { TokenAssign }
+    '='   { TokenAssign }
+    ':'   { TokenPoints }
     '->'  { TokenArrow }
     '+'   { TokenPlus }
     '-'   { TokenMinus }
@@ -43,11 +44,15 @@ import Err
 %%
 
 Expression :: { Term }
-Expression : Conditional                                   { $1 }
-           | fn var '->' Expression                        { Lambda $2 $4 }
-           | let var ':=' Expression in Expression         { Let $2 $4 $6 }
-           | if Expression then Expression else Expression { If $2 $4 $6 }
-           | fix Atomic                                    { Fix $2 }
+Expression : Conditional                                     { $1 }
+           | fn var '->' Expression                          { Lambda $2 $4 }
+           | let var ':' Variables '=' Expression in Expression { Let $2 $4 $6 $8 }
+           | if Expression then Expression else Expression   { If $2 $4 $6 }
+           | fix Atomic                                      { Fix $2 }
+
+Variables :: { [Identity] }
+Variables : {- empty -} { [] }
+          | var Variables  { $1 : $2 }
 
 Conditional :: { Term }
 Conditional : Conditional '&&' Condition { App (App (Prim (:&&)) $1) $3 }

@@ -56,8 +56,8 @@ compileSTG (If e1 e2 e3)
          e3' <- compileSTG e3
          pure $ STGIf e1' e2' e3'
 
-compileSTG (Let x e1 e2)
-    = do e1' <- compileSTG e1
+compileSTG (Let x xs e1 e2)
+    = do e1' <- compileSTG $ replaceVars xs e1
          e2' <- compileSTG e2
          pure $ STGLet x e1' e2'
 
@@ -67,3 +67,7 @@ compileSTG (Fix e)
 
 compileSTG _
     = Left $ Compiling "invalid lambda term"
+
+replaceVars :: [Identity] -> Term -> Term
+replaceVars xs e
+    = foldl (\acc x -> Lambda x acc) e xs

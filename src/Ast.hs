@@ -27,7 +27,7 @@ data Term = Var    Identity
           | Lambda Identity Term
           | App    Term Term
           | If     Term Term Term
-          | Let    Identity Term Term
+          | Let    Identity [Identity] Term Term
           | Fix    Term
           | Prim   Operation
           deriving (Show, Eq)
