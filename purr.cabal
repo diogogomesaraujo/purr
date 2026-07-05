@@ -59,7 +59,7 @@ library
     import:           warnings
 
     -- Modules exported by the library.
-    exposed-modules:  Ast, Parser, Lexer, Token, STG, Fv, Err
+    exposed-modules:  Ast, Parser, Lexer, Token, STG, Fv, Err, Compile
 
     -- Modules included in this library but not exported.
     -- other-modules:
