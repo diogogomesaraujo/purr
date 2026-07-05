@@ -5,6 +5,7 @@ import Ast
 import Err
 import Fv
 
+-- | Function that compiles the purr language into an internal SKI combinatory logic.
 compileSTG :: Term -> Either Err Combinator
 
 compileSTG (Const x)
@@ -68,6 +69,9 @@ compileSTG (Fix e)
 compileSTG _
     = Left $ Compiling "invalid lambda term"
 
+-- | Function that replaces each variable in a let statement by a lambda function
+-- with the variable as the argument.
 replaceVars :: [Identity] -> Term -> Term
+
 replaceVars xs e
     = foldl (\acc x -> Lambda x acc) e xs
