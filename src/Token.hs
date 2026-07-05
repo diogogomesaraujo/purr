@@ -28,4 +28,5 @@ data Token = TokenFix
            | TokenInt Int
            | TokenFloat Float
            | TokenVar String
-           deriving Show
+           | TokenSym String
+           deriving (Show, Eq)

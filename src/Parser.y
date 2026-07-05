@@ -20,6 +20,7 @@ import Err
     int   { TokenInt $$ }
     float { TokenFloat $$ }
     var   { TokenVar $$ }
+    sym   { TokenSym $$ }
     true  { TokenTrue }
     false { TokenFalse }
     ':='  { TokenAssign }
@@ -68,12 +69,13 @@ Sum : Sum '+' Multiplication { App (App (Prim (:+)) $1) $3 }
     | Multiplication { $1 }
 
 Multiplication :: { Term }
-Multiplication : Multiplication '*' Application { App (Prim (:*)) (App $1 $3) }
-               | Multiplication '/' Application { App (Prim (:/)) (App $1 $3) }
+Multiplication : Multiplication '*' Application { App (App (Prim (:*)) $1) $3 }
+               | Multiplication '/' Application { App (App (Prim (:/)) $1) $3 }
                | Application                    { $1 }
 
 Application :: { Term }
 Application : Application Atomic { App $1 $2 }
+            | Application sym Atomic { App (App (Prim (Custom $2)) $1) $3 }
             | Atomic             { $1 }
 
 Atomic :: { Term }

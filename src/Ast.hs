@@ -19,6 +19,7 @@ data Operation = (:+)
                | (:<=)
                | (:==)
                | (:!=)
+               | Custom String
                deriving (Show, Eq)
 
 data Term = Var    Identity

@@ -2,9 +2,10 @@ module Main where
 
 import Test.HUnit
 import Parse
+import Lex
 
 tests :: [Test]
-tests = parseTests
+tests = parseTests ++ lexTests
 
 main :: IO ()
 main = do

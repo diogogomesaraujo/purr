@@ -14,7 +14,7 @@ compileSTG (Var v)
     = Right $ STGVar v
 
 compileSTG (Prim p)
-    = pure $ STGPrim $ opConvert p
+    = pure $ STGPrim p
 
 compileSTG (App e1 e2)
     = do e1' <- compileSTG e1
