@@ -62,6 +62,18 @@ compileSTG (Let x xs e1 e2)
          e2' <- compileSTG e2
          pure $ STGLet x e1' e2'
 
+compileSTG (LetRec x xs e1 e2)
+    = do e1' <- compileSTG
+                $ replaceRec x
+                $ replaceVars xs e1
+         e2' <- compileSTG e2
+         pure $ STGLet x e1' e2'
+
+compileSTG (LetOp x x1 x2 e1 e2)
+    = do e1' <- compileSTG $ replaceVars [x1, x2] e1
+         e2' <- compileSTG e2
+         pure $ STGLet x e1' e2'
+
 compileSTG (Fix e)
     = do e' <- compileSTG e
          pure $ Y e'
@@ -72,6 +84,10 @@ compileSTG _
 -- | Function that replaces each variable in a let statement by a lambda function
 -- with the variable as the argument.
 replaceVars :: [Identity] -> Term -> Term
-
 replaceVars xs e
     = foldl (\acc x -> Lambda x acc) e xs
+
+-- | Function that wraps the body of a let rec statement in a fixed point.
+replaceRec :: Identity -> Term -> Term
+replaceRec x e
+    = Fix $ Lambda x e

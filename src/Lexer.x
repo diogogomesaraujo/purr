@@ -21,6 +21,8 @@ tokens :-
     "--".*                                ;
     fix                                   { \_ -> TokenFix }
     let                                   { \_ -> TokenLet }
+    rec                                   { \_ -> TokenRec }
+    op                                    { \_ -> TokenOp }
     in                                    { \_ -> TokenIn }
     if                                    { \_ -> TokenIf }
     then                                  { \_ -> TokenThen }

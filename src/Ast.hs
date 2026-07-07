@@ -28,6 +28,8 @@ data Term = Var    Identity
           | App    Term Term
           | If     Term Term Term
           | Let    Identity [Identity] Term Term
+          | LetRec Identity [Identity] Term Term
+          | LetOp  Identity Identity Identity Term Term
           | Fix    Term
           | Prim   Operation
           deriving (Show, Eq)

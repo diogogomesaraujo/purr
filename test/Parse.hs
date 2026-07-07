@@ -16,18 +16,18 @@ testLexParse str term = TestCase $ assertEqual
 
 testIncr :: Test
 testIncr =
-    let incrStr  = "let incr : x y = x + 1 in incr 1"
-        incrTerm  = Let "incr" ["x", "y"]
+    let incrStr  = "let incr : x = x + 1 in incr 1"
+        incrTerm  = Let "incr" ["x"]
             (App (App (Prim (:+)) (Var "x")) (Const (CInt 1)))
             (App (Var "incr") (Const (CInt 1)))
     in testLexParse incrStr incrTerm
 
 testCustomOp :: Test
 testCustomOp =
-    let customOpStr  = "let x := 5 in let y := 7.0 in x @ y"
+    let customOpStr  = "let x := 5 in let y := 7.0 in x ^ y"
         customOpTerm = Let "x" []
             (Const (CInt 5))
             (Let "y" []
                 (Const (CFloat 7.0))
-                (App (App (Prim (Custom "@")) (Var "x")) (Var "y")))
+                (App (App (Prim (Custom "^")) (Var "x")) (Var "y")))
     in testLexParse customOpStr customOpTerm

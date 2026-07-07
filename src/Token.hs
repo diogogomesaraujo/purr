@@ -2,6 +2,8 @@ module Token where
 
 data Token = TokenFix
            | TokenLet
+           | TokenRec
+           | TokenOp
            | TokenIf
            | TokenThen
            | TokenElse
