@@ -48,6 +48,9 @@ tokens :-
     "&&"                                  { \_ -> TokenAnd }
     "||"                                  { \_ -> TokenOr }
     ">="                                  { \_ -> TokenMoreEqual }
+    "["                                   { \_ -> TokenLParRect }
+    "]"                                   { \_ -> TokenRParRect }
+    ","                                   { \_ -> TokenComma }
     @int                                  { \s -> TokenInt (read s) }
     @float                                { \s -> TokenFloat (read s) }
     [$alpha \_] [$alpha $digit \_ \']*    { \s -> TokenVar s }

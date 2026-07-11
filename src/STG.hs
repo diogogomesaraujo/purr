@@ -9,4 +9,5 @@ data Combinator = STGVar Identity
                 | STGPrim Operation
                 | STGIf Combinator Combinator Combinator
                 | STGLet Identity Combinator Combinator
+                | STGList [Combinator]
                 deriving Show

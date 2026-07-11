@@ -28,6 +28,9 @@ data Token = TokenFix
            | TokenDifferent
            | TokenAnd
            | TokenOr
+           | TokenLParRect
+           | TokenRParRect
+           | TokenComma
            | TokenInt Int
            | TokenFloat Float
            | TokenVar String

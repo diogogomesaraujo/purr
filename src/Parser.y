@@ -42,11 +42,15 @@ import Err
     '!='  { TokenDifferent }
     '&&'  { TokenAnd }
     '||'  { TokenOr }
+    '['   { TokenLParRect }
+    ']'   { TokenRParRect }
+    ','   { TokenComma }
 
 %%
 
 Expression :: { Term }
 Expression : Conditional                                            { $1 }
+           | List                                                   { $1 }
            | fn var '->' Expression                                 { Lambda $2 $4 }
            | let var ':' Variables '=' Expression in Expression     { Let $2 $4 $6 $8 }
            | let rec var ':' Variables '=' Expression in Expression { LetRec $3 $5 $7 $9 }
@@ -83,9 +87,17 @@ Multiplication : Multiplication '*' Application { App (App (Prim (:*)) $1) $3 }
                | Application                    { $1 }
 
 Application :: { Term }
-Application : Application Atomic { App $1 $2 }
+Application : Application Atomic     { App $1 $2 }
             | Application sym Atomic { App (App (Prim (Custom $2)) $1) $3 }
-            | Atomic             { $1 }
+            | Atomic                 { $1 }
+
+List :: { Term }
+List : '[' ListElements ']' { Lst $2 }
+
+ListElements :: { [Term] }
+ListElements : {- empty -}                  { [] }
+             | Expression                  { [$1] }
+             | Expression ',' ListElements { $1 : $3 }
 
 Atomic :: { Term }
 Atomic : AtomicConstant     { Const $1 }

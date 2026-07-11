@@ -78,8 +78,19 @@ compileSTG (Fix e)
     = do e' <- compileSTG e
          pure $ Y e'
 
+compileSTG (Lst l)
+    = do l' <- compileListSTG l
+         pure $ STGList l'
+
 compileSTG _
     = Left $ Compiling "invalid lambda term"
+
+compileListSTG :: [Term] -> Either Err [Combinator]
+compileListSTG []     = pure []
+compileListSTG (x:xs)
+    = case compileSTG x of
+        Right c -> (:) <$> pure c <*> compileListSTG xs
+        Left e  -> Left e
 
 -- | Function that replaces each variable in a let statement by a lambda function
 -- with the variable as the argument.

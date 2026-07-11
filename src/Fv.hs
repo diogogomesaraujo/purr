@@ -12,15 +12,22 @@ contains x xs
 
 -- | Function that returns the free variables in a term.
 fv :: Term -> [Identity]
-fv (Const _)           = []
-fv (Prim _)            = []
-fv (Var x)             = [x]
-fv (Lambda x e)        = delete x (fv e)
-fv (App e1 e2)         = (fv e1) `union` (fv e2)
-fv (If e1 e2 e3)       = fv e1 `union` fv e2 `union` fv e3
-fv (Let x xs e1 e2)    = fv e1 `union` filter (\e -> contains e (x:xs)) (fv e2)
-fv (LetRec x xs e1 e2) = fv e1 `union` filter (\e -> contains e (x:xs)) (fv e2)
-fv (Fix e)             = fv e
+fv (Const _)             = []
+fv (Prim _)              = []
+fv (Var x)               = [x]
+fv (Lambda x e)          = delete x (fv e)
+fv (App e1 e2)           = (fv e1) `union` (fv e2)
+fv (If e1 e2 e3)         = fv e1 `union` fv e2 `union` fv e3
+fv (Let x xs e1 e2)      = fv e1 `union` filter (\e -> contains e (x:xs)) (fv e2)
+fv (LetOp x x1 x2 e1 e2) = fv e1 `union` filter (\e -> contains e [x, x1, x2]) (fv e2)
+fv (LetRec x xs e1 e2)   = fv e1 `union` filter (\e -> contains e (x:xs)) (fv e2)
+fv (Lst l)               = fvList l
+fv (Fix e)               = fv e
+
+-- | Function that returns the free variables in a list term.
+fvList :: [Term] -> [Identity]
+fvList []     = []
+fvList (x:xs) = fv x  `union` fvList xs
 
 -- | Function that checks if there are any free variables in a term.
 isFv :: Identity -> Term -> Bool

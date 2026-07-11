@@ -32,4 +32,5 @@ data Term = Var    Identity
           | LetOp  Identity Identity Identity Term Term
           | Fix    Term
           | Prim   Operation
+          | Lst    [Term]
           deriving (Show, Eq)
