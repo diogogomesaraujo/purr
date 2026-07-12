@@ -17,7 +17,7 @@ compileSTG (Var v)
 compileSTG (Prim p)
     = pure $ STGVar $ show p
 
-compileSTG (App e1 e2)
+compileSTG (e1 :@ e2)
     = do e1' <- compileSTG e1
          e2' <- compileSTG e2
          pure $ e1' ::@ e2'
@@ -30,22 +30,22 @@ compileSTG (Lambda x e)
         <$> Right K
         <*> compileSTG e
 
-compileSTG (Lambda x (App e (Var x')))
+compileSTG (Lambda x (e :@ Var x'))
     | x == x' && (not $ isFv x e) = compileSTG e
 
-compileSTG (Lambda x (App e1 e2))
+compileSTG (Lambda x (e1 :@ e2))
     | not $ isFv x e1 = do
         e1' <- compileSTG e1
         e2' <- compileSTG (Lambda x e2)
         pure $ B ::@ e1' ::@ e2'
 
-compileSTG (Lambda x (App e1 e2))
+compileSTG (Lambda x (e1 :@ e2))
     | not $ isFv x e2 = do
         e1' <- compileSTG (Lambda x e1)
         e2' <- compileSTG e2
         pure $ C ::@ e1' ::@ e2'
 
-compileSTG (Lambda x (App e1 e2))
+compileSTG (Lambda x (e1 :@ e2))
     | isFv x e1 && isFv x e2 = do
         e1' <- compileSTG (Lambda x e1)
         e2' <- compileSTG (Lambda x e2)
@@ -78,19 +78,8 @@ compileSTG (Fix e)
     = do e' <- compileSTG e
          pure $ Y e'
 
-compileSTG (Lst l)
-    = compileListSTG l
-
 compileSTG _
     = Left $ Compiling "invalid lambda term"
-
-compileListSTG :: [Term] -> Either Err Combinator
-compileListSTG []
-    = pure $ nil
-compileListSTG (x:xs)
-    = case compileSTG x of
-        Right c -> pure (cons c) <*> compileListSTG xs
-        Left e  -> Left e
 
 -- | Function that replaces each variable in a let statement by a lambda function
 -- with the variable as the argument.

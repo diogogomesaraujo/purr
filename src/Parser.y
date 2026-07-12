@@ -63,41 +63,41 @@ Variables : {- empty -} { [] }
           | var Variables  { $1 : $2 }
 
 Conditional :: { Term }
-Conditional : Conditional '&&' Condition { App (App (Prim (:&&)) $1) $3 }
-            | Conditional '||' Condition { App (App (Prim (:||)) $1) $3 }
+Conditional : Conditional '&&' Condition { ((Prim (:&&)) :@ $1) :@ $3 }
+            | Conditional '||' Condition { ((Prim (:||)) :@ $1) :@ $3 }
             | Condition                  { $1 }
 
 Condition :: { Term }
-Condition : Condition '>'  Sum { App (App (Prim (:>)) $1) $3 }
-          | Condition '>=' Sum { App (App (Prim (:>=)) $1) $3 }
-          | Condition '<'  Sum { App (App (Prim (:<)) $1) $3 }
-          | Condition '<=' Sum { App (App (Prim (:<=)) $1) $3 }
-          | Condition '==' Sum { App (App (Prim (:==)) $1) $3}
-          | Condition '!=' Sum { App (App (Prim (:!=)) $1) $3 }
+Condition : Condition '>'  Sum { ((Prim (:>)) :@ $1) :@ $3 }
+          | Condition '>=' Sum { ((Prim (:>=)) :@ $1) :@ $3 }
+          | Condition '<'  Sum { ((Prim (:<)) :@ $1) :@ $3 }
+          | Condition '<=' Sum { ((Prim (:<=)) :@ $1) :@ $3 }
+          | Condition '==' Sum { ((Prim (:==)) :@ $1) :@ $3 }
+          | Condition '!=' Sum { ((Prim (:!=)) :@ $1) :@ $3 }
           | Sum                { $1 }
 
 Sum :: { Term }
-Sum : Sum '+' Multiplication { App (App (Prim (:+)) $1) $3 }
-    | Sum '-' Multiplication { App (App (Prim (:-)) $1) $3 }
+Sum : Sum '+' Multiplication { ((Prim (:+)) :@ $1) :@ $3 }
+    | Sum '-' Multiplication { ((Prim (:-)) :@ $1) :@ $3 }
     | Multiplication { $1 }
 
 Multiplication :: { Term }
-Multiplication : Multiplication '*' Application { App (App (Prim (:*)) $1) $3 }
-               | Multiplication '/' Application { App (App (Prim (:/)) $1) $3 }
+Multiplication : Multiplication '*' Application { ((Prim (:*)) :@ $1) :@ $3 }
+               | Multiplication '/' Application { ((Prim (:/)) :@ $1) :@ $3 }
                | Application                    { $1 }
 
 Application :: { Term }
-Application : Application Atomic     { App $1 $2 }
-            | Application sym Atomic { App (App (Prim (Custom $2)) $1) $3 }
+Application : Application Atomic     { $1 :@ $2 }
+            | Application sym Atomic { ((Prim (Custom $2)) :@ $1) :@ $3 }
             | Atomic                 { $1 }
 
 List :: { Term }
-List : '[' ListElements ']' { Lst $2 }
+List : '[' ListElements ']' { $2 }
 
-ListElements :: { [Term] }
-ListElements : {- empty -}                  { [] }
-             | Expression                  { [$1] }
-             | Expression ',' ListElements { $1 : $3 }
+ListElements :: { Term }
+ListElements : {- empty -}                 { nil }
+             | Expression                  { cons $1 nil }
+             | Expression ',' ListElements { cons $1 $3 }
 
 Atomic :: { Term }
 Atomic : AtomicConstant     { Const $1 }

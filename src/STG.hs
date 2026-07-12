@@ -9,9 +9,3 @@ data Combinator = STGVar Identity
                 | STGIf Combinator Combinator Combinator
                 | STGLet Identity Combinator Combinator
                 deriving Show
-
-cons :: Combinator -> Combinator -> Combinator
-cons x y = (STGVar "cons" ::@ x) ::@ y
-
-nil :: Combinator
-nil = STGVar "nil"
