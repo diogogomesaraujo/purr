@@ -6,7 +6,7 @@ import Lexer
 import Ast
 
 parseTests :: [Test]
-parseTests = [testIncr, testCustomOp]
+parseTests = [testParseLet, testParseLetOp]
 
 testLexParse :: String -> Term -> Test
 testLexParse str term = TestCase $ assertEqual
@@ -14,20 +14,16 @@ testLexParse str term = TestCase $ assertEqual
         (parse $ alexScanTokens str)
         term
 
-testIncr :: Test
-testIncr =
+testParseLet :: Test
+testParseLet =
     let incrStr  = "let incr : x = x + 1 in incr 1"
         incrTerm  = Let "incr" ["x"]
             (App (App (Prim (:+)) (Var "x")) (Const (CInt 1)))
             (App (Var "incr") (Const (CInt 1)))
     in testLexParse incrStr incrTerm
 
-testCustomOp :: Test
-testCustomOp =
-    let customOpStr  = "let x := 5 in let y := 7.0 in x ^ y"
-        customOpTerm = Let "x" []
-            (Const (CInt 5))
-            (Let "y" []
-                (Const (CFloat 7.0))
-                (App (App (Prim (Custom "^")) (Var "x")) (Var "y")))
-    in testLexParse customOpStr customOpTerm
+testParseLetOp :: Test
+testParseLetOp =
+    let opStr  = "let op ** : x y = x * y in 2 ** 3"
+        opTerm = LetOp "**" "x" "y" (App (App (Prim (:*)) (Var "x")) (Var "y")) (App (App (Prim (Custom "**")) (Const (CInt 2))) (Const (CInt 3)))
+    in testLexParse opStr opTerm

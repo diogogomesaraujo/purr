@@ -15,7 +15,7 @@ compileSTG (Var v)
     = Right $ STGVar v
 
 compileSTG (Prim p)
-    = pure $ STGPrim p
+    = pure $ STGVar $ show p
 
 compileSTG (App e1 e2)
     = do e1' <- compileSTG e1
@@ -79,17 +79,17 @@ compileSTG (Fix e)
          pure $ Y e'
 
 compileSTG (Lst l)
-    = do l' <- compileListSTG l
-         pure $ STGList l'
+    = compileListSTG l
 
 compileSTG _
     = Left $ Compiling "invalid lambda term"
 
-compileListSTG :: [Term] -> Either Err [Combinator]
-compileListSTG []     = pure []
+compileListSTG :: [Term] -> Either Err Combinator
+compileListSTG []
+    = pure $ nil
 compileListSTG (x:xs)
     = case compileSTG x of
-        Right c -> (:) <$> pure c <*> compileListSTG xs
+        Right c -> pure (cons c) <*> compileListSTG xs
         Left e  -> Left e
 
 -- | Function that replaces each variable in a let statement by a lambda function

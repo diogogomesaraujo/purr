@@ -6,8 +6,12 @@ data Combinator = STGVar Identity
                 | S | K | I | B | C
                 | Y Combinator
                 | STGConst Constant
-                | STGPrim Operation
                 | STGIf Combinator Combinator Combinator
                 | STGLet Identity Combinator Combinator
-                | STGList [Combinator]
                 deriving Show
+
+cons :: Combinator -> Combinator -> Combinator
+cons x y = (STGVar "cons" ::@ x) ::@ y
+
+nil :: Combinator
+nil = STGVar "nil"
