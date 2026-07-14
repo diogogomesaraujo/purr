@@ -17,6 +17,28 @@ compileSTG (Var v)
 compileSTG (Prim p)
     = pure $ STGVar $ show p
 
+compileSTG (If e1 e2 e3)
+    = do e1' <- compileSTG e1
+         e2' <- compileSTG e2
+         e3' <- compileSTG e3
+         pure $ STGIf ::@ e1' ::@ e2' ::@ e3'
+
+compileSTG (Let x xs e1 e2)
+    = do e1' <- compileSTG $ replaceVars xs e1
+         e2' <- compileSTG e2
+         pure $ STGLet x ::@ e1' ::@ e2'
+
+compileSTG (LetRec x xs e1 e2)
+    = do e1' <- compileSTG
+                $ replaceRec x
+                $ replaceVars xs e1
+         e2' <- compileSTG e2
+         pure $ STGLet x ::@ e1' ::@ e2'
+
+compileSTG (Fix e)
+    = do e' <- compileSTG e
+         pure $ Y ::@ e'
+
 compileSTG (e1 :@ e2)
     = do e1' <- compileSTG e1
          e2' <- compileSTG e2
@@ -51,41 +73,14 @@ compileSTG (Lambda x (e1 :@ e2))
         e2' <- compileSTG (Lambda x e2)
         pure $ S ::@ e1' ::@ e2'
 
-compileSTG (If e1 e2 e3)
-    = do e1' <- compileSTG e1
-         e2' <- compileSTG e2
-         e3' <- compileSTG e3
-         pure $ STGIf e1' e2' e3'
-
-compileSTG (Let x xs e1 e2)
-    = do e1' <- compileSTG $ replaceVars xs e1
-         e2' <- compileSTG e2
-         pure $ STGLet x e1' e2'
-
-compileSTG (LetRec x xs e1 e2)
-    = do e1' <- compileSTG
-                $ replaceRec x
-                $ replaceVars xs e1
-         e2' <- compileSTG e2
-         pure $ STGLet x e1' e2'
-
-compileSTG (LetOp x x1 x2 e1 e2)
-    = do e1' <- compileSTG $ replaceVars [x1, x2] e1
-         e2' <- compileSTG e2
-         pure $ STGLet x e1' e2'
-
-compileSTG (Fix e)
-    = do e' <- compileSTG e
-         pure $ Y e'
-
 compileSTG _
-    = Left $ Compiling "invalid lambda term"
+    = Left $ Compiling $ "invalid lambda term"
 
 -- | Function that replaces each variable in a let statement by a lambda function
 -- with the variable as the argument.
 replaceVars :: [Identity] -> Term -> Term
 replaceVars xs e
-    = foldl (\acc x -> Lambda x acc) e xs
+    = foldr Lambda e xs
 
 -- | Function that wraps the body of a let rec statement in a fixed point.
 replaceRec :: Identity -> Term -> Term

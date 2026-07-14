@@ -25,5 +25,11 @@ testParseLet =
 testParseLetOp :: Test
 testParseLetOp =
     let opStr  = "let op ** : x y = x * y in 2 ** 3"
-        opTerm = LetOp "**" "x" "y" (((Prim (:*)) :@ (Var "x")) :@ (Var "y")) (((Prim (Custom "**")) :@ (Const (CInt 2))) :@ (Const (CInt 3)))
+        opTerm = Let "**" ["x", "y"] (((Prim (:*)) :@ (Var "x")) :@ (Var "y")) (((Prim (Custom "**")) :@ (Const (CInt 2))) :@ (Const (CInt 3)))
+    in testLexParse opStr opTerm
+
+testParseLetRecOp :: Test
+testParseLetRecOp =
+    let opStr  = "let rec op ^ : x y = if y == 0 then 1 else (if y > 1 then (x * x) ^ (y - 1) else x in 2 ^ 3)"
+        opTerm = Let "**" ["x", "y"] (((Prim (:*)) :@ (Var "x")) :@ (Var "y")) (((Prim (Custom "**")) :@ (Const (CInt 2))) :@ (Const (CInt 3)))
     in testLexParse opStr opTerm

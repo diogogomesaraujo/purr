@@ -12,16 +12,10 @@ contains x xs
 
 -- | Function that returns the free variables in a term.
 fv :: Term -> [Identity]
-fv (Const _)             = []
-fv (Prim _)              = []
 fv (Var x)               = [x]
 fv (Lambda x e)          = delete x (fv e)
 fv (e1 :@ e2)            = fv e1 `union` fv e2
-fv (If e1 e2 e3)         = fv e1 `union` fv e2 `union` fv e3
-fv (Let x xs e1 e2)      = fv e1 `union` filter (\e -> contains e (x:xs)) (fv e2)
-fv (LetOp x x1 x2 e1 e2) = fv e1 `union` filter (\e -> contains e [x, x1, x2]) (fv e2)
-fv (LetRec x xs e1 e2)   = fv e1 `union` filter (\e -> contains e (x:xs)) (fv e2)
-fv (Fix e)               = fv e
+fv _                     = []
 
 -- | Function that checks if there are any free variables in a term.
 isFv :: Identity -> Term -> Bool
