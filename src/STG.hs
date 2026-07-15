@@ -8,4 +8,4 @@ data Combinator = STGVar Identity
                 | STGConst Constant
                 | STGIf
                 | STGLet Identity
-                deriving Show
+                deriving (Show, Eq)
