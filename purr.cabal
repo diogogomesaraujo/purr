@@ -59,7 +59,7 @@ library
     import:           warnings
 
     -- Modules exported by the library.
-    exposed-modules:  Ast, Parser, Lexer, Token, STG, Fv, Err, Compile, Rewrite, Normal, Eval, Unwind, Flatten
+    exposed-modules:  Ast, Parser, Lexer, Token, STG, Fv, Err, Compile, Rewrite, Normal, Eval, Unwind
 
     -- Modules included in this library but not exported.
     -- other-modules:
@@ -95,7 +95,8 @@ executable purr
     -- Other library packages from which modules are imported.
     build-depends:
         base ^>=4.22.0.0,
-        purr
+        purr,
+        optparse-applicative
 
     -- Directories containing source files.
     hs-source-dirs:   app

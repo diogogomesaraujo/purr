@@ -13,7 +13,6 @@ import Err
     fix   { TokenFix }
     let   { TokenLet }
     rec   { TokenRec }
-    op    { TokenOp }
     if    { TokenIf }
     then  { TokenThen }
     else  { TokenElse }
@@ -49,15 +48,15 @@ import Err
 %%
 
 Expression :: { Term }
-Expression : Conditional                                             { $1 }
-           | List                                                    { $1 }
-           | fn var '->' Expression                                  { Lambda $2 $4 }
-           | let var ':' Variables '=' Expression in Expression      { Let $2 $4 $6 $8 }
-           | let rec var ':' Variables '=' Expression in Expression  { LetRec $3 $5 $7 $9 }
-           | let op sym ':' var var '=' Expression in Expression     { Let $3 [$5, $6] $8 $10 }
-           | let rec op sym ':' var var '=' Expression in Expression { LetRec $4 [$6, $7] $9 $11 }
-           | if Expression then Expression else Expression           { If $2 $4 $6 }
-           | fix Atomic                                              { Fix $2 }
+Expression : Conditional                                                  { $1 }
+           | List                                                         { $1 }
+           | fn var '->' Expression                                       { Lambda $2 $4 }
+           | let var ':' Variables '=' Expression in Expression           { Let $2 $4 $6 $8 }
+           | let rec var ':' Variables '=' Expression in Expression       { LetRec $3 $5 $7 $9 }
+           | let '(' sym ')' ':' var var '=' Expression in Expression     { Let $3 [$6, $7] $9 $11 }
+           | let rec '(' sym ')' ':' var var '=' Expression in Expression { LetRec $4 [$7, $8] $10 $12 }
+           | if Expression then Expression else Expression                { If $2 $4 $6 }
+           | fix Atomic                                                   { Fix $2 }
 
 Variables :: { [Identity] }
 Variables : {- empty -} { [] }
