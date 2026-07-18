@@ -4,8 +4,8 @@ import Ast
 data Combinator = STGVar Identity
                 | Combinator ::@ Combinator -- Application
                 | S | K | I | B | C
-                | Y
+                | Y Combinator
                 | STGConst Constant
-                | STGIf
-                | STGLet Identity
+                | STGIf Combinator Combinator Combinator
+                | STGLet Identity Combinator Combinator
                 deriving (Show, Eq)

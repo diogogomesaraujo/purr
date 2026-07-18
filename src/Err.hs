@@ -8,7 +8,5 @@ data Err = Compiling String
 
 -- | Function that shows a compile time error.
 showErr :: Err -> String
-
 showErr (Compiling e) = e
-
 showErr (Parsing t) = "error parsing: " ++ show t

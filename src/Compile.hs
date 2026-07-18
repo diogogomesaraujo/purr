@@ -21,23 +21,23 @@ compileSTG (If e1 e2 e3)
     = do e1' <- compileSTG e1
          e2' <- compileSTG e2
          e3' <- compileSTG e3
-         pure $ STGIf ::@ e1' ::@ e2' ::@ e3'
+         pure $ STGIf e1' e2' e3'
 
 compileSTG (Let x xs e1 e2)
     = do e1' <- compileSTG $ replaceVars xs e1
          e2' <- compileSTG e2
-         pure $ STGLet x ::@ e1' ::@ e2'
+         pure $ STGLet x e1' e2'
 
 compileSTG (LetRec x xs e1 e2)
     = do e1' <- compileSTG
                 $ replaceRec x
                 $ replaceVars xs e1
          e2' <- compileSTG e2
-         pure $ STGLet x ::@ e1' ::@ e2'
+         pure $ STGLet x e1' e2'
 
 compileSTG (Fix e)
     = do e' <- compileSTG e
-         pure $ Y ::@ e'
+         pure $ Y e'
 
 compileSTG (e1 :@ e2)
     = do e1' <- compileSTG e1

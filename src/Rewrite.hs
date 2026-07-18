@@ -2,6 +2,7 @@ module Rewrite where
 
 import STG
 
+-- | Function that tries to reduce sequences of combinators.
 rewrite :: [Combinator] -> [Combinator]
 
 rewrite (I:p:tl)
