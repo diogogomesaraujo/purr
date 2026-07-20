@@ -6,7 +6,7 @@ import Err
 import Fv
 
 -- | Function that compiles the purr language into an internal SKI combinatory logic.
-compileSTG :: Term -> Either Err Combinator
+compileSTG :: Term ->  Either Err Combinator
 
 compileSTG (Const x)
     = Right $ STGConst x
@@ -15,29 +15,29 @@ compileSTG (Var v)
     = Right $ STGVar v
 
 compileSTG (Prim p)
-    = pure $ STGVar $ show p
+    = pure $ compilePrim p
 
 compileSTG (If e1 e2 e3)
     = do e1' <- compileSTG e1
          e2' <- compileSTG e2
          e3' <- compileSTG e3
-         pure $ STGIf e1' e2' e3'
+         pure $ STGIf ::@ e1' ::@ e2' ::@  e3'
 
 compileSTG (Let x xs e1 e2)
     = do e1' <- compileSTG $ replaceVars xs e1
          e2' <- compileSTG e2
-         pure $ STGLet x e1' e2'
+         pure $ STGLet x ::@ e1' ::@ e2'
 
 compileSTG (LetRec x xs e1 e2)
     = do e1' <- compileSTG
                 $ replaceRec x
                 $ replaceVars xs e1
          e2' <- compileSTG e2
-         pure $ STGLet x e1' e2'
+         pure $ STGLet x ::@ e1' ::@ e2'
 
 compileSTG (Fix e)
     = do e' <- compileSTG e
-         pure $ Y e'
+         pure $ Y ::@ e'
 
 compileSTG (e1 :@ e2)
     = do e1' <- compileSTG e1
@@ -75,6 +75,21 @@ compileSTG (Lambda x (e1 :@ e2))
 
 compileSTG _
     = Left $ Compiling $ "invalid lambda term"
+
+compilePrim :: Operation -> Combinator
+compilePrim (:+)       = ADD
+compilePrim (:-)       = SUB
+compilePrim (:*)       = MUL
+compilePrim (:/)       = DIV
+compilePrim (:==)      = STG.EQ
+compilePrim (:!=)      = DIFF
+compilePrim (:&&)      = AND
+compilePrim (:||)      = OR
+compilePrim (:<)       = L
+compilePrim (:<=)      = LE
+compilePrim (:>)       = G
+compilePrim (:>=)      = GE
+compilePrim (Custom x) = STGVar x
 
 -- | Function that replaces each variable in a let statement by a lambda function
 -- with the variable as the argument.

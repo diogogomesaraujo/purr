@@ -1,4 +1,4 @@
-module Main (main) where
+module Main where
 
 import Eval
 import Lexer
@@ -15,20 +15,19 @@ cmdArgs = CmdArgs
                 <> short 'f'
                 <> help "interpret the purr program at the given file path" )
 
-interp :: CmdArgs -> IO ()
-interp args = do file <- readFile $ filePath args
-                 prog <- pure
+interpFile :: CmdArgs -> IO ()
+interpFile args = do file <- readFile $ filePath args
+                     prog <- pure
                             $ compileSTG
                             $ parse
                             $ alexScanTokens
                             $ file
-                 case prog of
-                    Right p -> putStr $ show $ eval [p]
-                    Left  e -> putStr $ show e
-
+                     case prog of
+                        Right p -> putStr $ show $ eval p
+                        Left  e -> putStr $ show e
 
 main :: IO ()
-main = interp =<< execParser opts
+main = interpFile =<< execParser opts
             where opts = info (cmdArgs <**> helper)
                             ( fullDesc
                             <> progDesc "interpreter environment for the purr programming language"

@@ -59,7 +59,17 @@ library
     import:           warnings
 
     -- Modules exported by the library.
-    exposed-modules:  Ast, Parser, Lexer, Token, STG, Fv, Err, Compile, Rewrite, Normal, Eval, Unwind
+    exposed-modules:  Ast,
+                      Parser,
+                      Lexer,
+                      Token,
+                      STG,
+                      Fv,
+                      Err,
+                      Compile,
+                      Rewrite,
+                      Normal,
+                      Eval
 
     -- Modules included in this library but not exported.
     -- other-modules:
@@ -68,7 +78,7 @@ library
     -- other-extensions:
 
     -- Other library packages from which modules are imported.
-    build-depends:    base ^>=4.22.0.0, array
+    build-depends:    base ^>=4.22.0.0, array, uniplate
 
     build-tool-depends:
         happy:happy >=2.2

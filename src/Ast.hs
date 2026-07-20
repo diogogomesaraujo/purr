@@ -1,11 +1,14 @@
+{-# LANGUAGE DeriveDataTypeable #-}
+
 module Ast where
+import Data.Data (Data)
 
 type Identity = String
 
 data Constant = CInt   Int
               | CFloat Float
               | CBool  Bool
-              deriving (Show, Eq)
+              deriving (Show, Eq, Data)
 
 data Operation = (:+)
                | (:-)
