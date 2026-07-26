@@ -80,7 +80,7 @@ rewrite (G ::@ (STGConst (CInt x)) ::@ (STGConst (CInt y)))
 rewrite (GE ::@ (STGConst (CInt x)) ::@ (STGConst (CInt y)))
     = (STGConst $ CBool (x >= y))
 
-rewrite (STGIf ::@ STGConst (CBool x) ::@ e1 ::@ e2)
+rewrite (STGIf ::@ (STGConst (CBool x)) ::@ e1 ::@ e2)
     | x         = e1
     | otherwise = e2
 

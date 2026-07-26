@@ -12,5 +12,4 @@ data Combinator = STGVar Identity
                 | GE | G | LE | L
                 | STGConst Constant
                 | STGIf
-                | STGLet Identity
                 deriving (Show, Eq, Data)

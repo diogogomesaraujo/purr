@@ -24,16 +24,12 @@ compileSTG (If e1 e2 e3)
          pure $ STGIf ::@ e1' ::@ e2' ::@  e3'
 
 compileSTG (Let x xs e1 e2)
-    = do e1' <- compileSTG $ replaceVars xs e1
-         e2' <- compileSTG e2
-         pure $ STGLet x ::@ e1' ::@ e2'
+    = let e1' = replaceVars xs e1
+    in compileSTG (Lambda x e2 :@ e1')
 
 compileSTG (LetRec x xs e1 e2)
-    = do e1' <- compileSTG
-                $ replaceRec x
-                $ replaceVars xs e1
-         e2' <- compileSTG e2
-         pure $ STGLet x ::@ e1' ::@ e2'
+    = let e1' = Fix $ Lambda x $ replaceVars xs e1
+    in compileSTG (Lambda x e2 :@ e1')
 
 compileSTG (Fix e)
     = do e' <- compileSTG e
