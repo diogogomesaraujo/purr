@@ -3,6 +3,7 @@ module Main where
 import Eval
 import Lexer
 import Parser
+import Unwind
 import Compile
 import Options.Applicative
 
@@ -23,7 +24,7 @@ interpFile args = do file <- readFile $ filePath args
                             $ alexScanTokens
                             $ file
                      case prog of
-                        Right p -> putStr $ show $ eval p
+                        Right p -> putStr $ show $ eval $ unwind [p]
                         Left  e -> putStr $ show e
 
 main :: IO ()

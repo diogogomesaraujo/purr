@@ -60,7 +60,7 @@ compilePrim (:>)       = G
 compilePrim (:>=)      = GE
 compilePrim (Custom x) = STGVar x
 
-
+-- | Function that compiles a lambda function depending on the internal expression.
 abstract :: Identity -> Combinator -> Either Err Combinator
 
 abstract x (STGVar v)
@@ -72,28 +72,28 @@ abstract x e
 abstract x (e ::@ STGVar x')
     | x == x' && (not $ isFv x e) = Right $ e
 
-abstract x (m ::@ n)
-    | not (isFv x m)
+abstract x (e1 ::@ e2)
+    | not (isFv x e1)
         = (::@)
         <$> ((::@)
             <$> Right B
-            <*> Right m)
-        <*> abstract x n
+            <*> Right e1)
+        <*> abstract x e2
 
-abstract x (m ::@ n)
-    | not (isFv x n)
+abstract x (e1 ::@ e2)
+    | not (isFv x e2)
     = (::@)
     <$> ((::@)
         <$> Right C
-        <*> abstract x m)
-    <*> Right n
+        <*> abstract x e1)
+    <*> Right e2
 
-abstract x (m ::@ n)
+abstract x (e1 ::@ e2)
     = (::@)
     <$> ((::@)
         <$> Right S
-        <*> abstract x m)
-    <*> abstract x n
+        <*> abstract x e1)
+    <*> abstract x e2
 
 abstract _ _ = Left $ Compiling "invalid lambda term"
 
@@ -102,8 +102,3 @@ abstract _ _ = Left $ Compiling "invalid lambda term"
 replaceVars :: [Identity] -> Term -> Term
 replaceVars xs e
     = foldr Lambda e xs
-
--- | Function that wraps the body of a let rec statement in a fixed point.
-replaceRec :: Identity -> Term -> Term
-replaceRec x e
-    = Fix $ Lambda x e
