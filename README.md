@@ -11,9 +11,9 @@
 
 This repository contains a compiler and interpreter for a lazy evaluation programming language (such as Haskell) with ML-like syntax.
 
-It was built as a hobby project to retain concepts learnt (lambda calculus, graph reduction, type inference) from the Fundamentals of Programming Languages and Implementation of Programming Languages courses of my Master's Degree in Computer Science at Universidade do Porto.
+It was built as a hobby project to retain concepts like lambda calculus, graph reduction, type inference and lazy evaluation learnt from the Fundamentals of Programming Languages and Implementation of Programming Languages courses of my Master's Degree in Computer Science at Universidade do Porto.
 
-## Features
+## Language Features
 
 - Boolean, ints and floats;
 - Comments (`-- ...`);
@@ -69,4 +69,17 @@ let rec fib : x =
 in 
 
 fib 10
+```
+
+4. Catalan Numbers
+```ocaml
+let rec fact : x
+    = if x == 0 then 1 else x * fact (x - 1)
+in
+
+let rec catalan : x
+    = fact (2 * x) / (fact (x + 1) * fact x)
+in
+
+catalan 10
 ```
