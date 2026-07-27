@@ -1,3 +1,5 @@
 TODO:
 - Build standard library.
 - Implement typing.
+- Pattern matching.
+- Polymorphic types.
