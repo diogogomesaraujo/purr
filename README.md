@@ -23,7 +23,7 @@ It was built as a hobby project to retain concepts like lambda calculus, graph r
 - Variable Declaration (`let x := ...`);
 - Recursive and Non-Recursive Functions (`let f : x = ... in ...`, `let rec f : x = ... in ...`);
 - Custom Operators (`let (**) : x y = x * y in x ** y`)
-- Lists (`[...,...]`).
+- Lists (`[...,...]`, `-...:[]`).
 
 ## Getting Started
 
@@ -49,17 +49,7 @@ let incr : x =
 in incr 1
 ```
 
-2. Factorial
-
-```ocaml
-let rec fact : x
-    = if x == 0 then 1 else x * fact (x - 1)
-in
-
-fact 5
-```
-
-3. Fibonnaci Sequence
+2. Fibonnaci Sequence
 
 ```ocaml
 let rec fib : x =
@@ -71,15 +61,18 @@ in
 fib 10
 ```
 
-4. Catalan Numbers
+3. Ascending List
 ```ocaml
-let rec fact : x
-    = if x == 0 then 1 else x * fact (x - 1)
+let rec ascending_rec : size current_size list
+    = if current_size > size
+        then list
+        else current_size
+             : ascending_rec size (current_size + 1) list
 in
 
-let rec catalan : x
-    = fact (2 * x) / (fact (x + 1) * fact x)
+let ascending : size
+    = ascending_rec size 1 []
 in
 
-catalan 10
+ascending 10
 ```

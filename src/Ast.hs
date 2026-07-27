@@ -8,6 +8,7 @@ type Identity = String
 data Constant = CInt   Int
               | CFloat Float
               | CBool  Bool
+              | CList [Constant]
               deriving (Show, Eq, Data)
 
 data Operation = (:+)
@@ -22,6 +23,7 @@ data Operation = (:+)
                | (:<=)
                | (:==)
                | (:!=)
+               | (:::)
                | Custom String
                deriving (Show, Eq)
 

@@ -14,6 +14,12 @@ eval e
 -- | Function that does an intermediate step of evaluation (conditions and primitive operations).
 step :: Spine -> Spine
 
+step (STGVar "cons":e1:e2:xs)
+    = CAT:e1:e2:xs
+
+step (STGVar "nil":xs)
+    = (STGConst $ CList []):xs
+
 step (ADD:(STGConst (CInt x)):(STGConst (CInt y)):xs)
     = (STGConst $ CInt (x + y)):xs
 step (ADD:(STGConst (CFloat x)):(STGConst (CFloat y)):xs)
@@ -101,6 +107,11 @@ step (G:e1:e2:xs)
     = eval $ [G] ++ (eval $ unwind [e1]) ++ (eval $ unwind [e2]) ++ xs
 step (GE:e1:e2:xs)
     = eval $ [GE] ++ (eval $ unwind [e1]) ++ (eval $ unwind [e2]) ++ xs
+
+step (CAT:(STGConst c):(STGConst (CList l)):xs)
+    = eval $ (STGConst $ CList $ c:l):xs
+step (CAT:e1:e2:xs)
+    = eval $ [CAT] ++ (eval $ unwind [e1]) ++ (eval $ unwind [e2]) ++ xs
 
 step (STGIf:(STGConst (CBool x)):e1:e2:xs)
     | x         = eval $ e1:xs

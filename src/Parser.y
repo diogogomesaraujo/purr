@@ -49,7 +49,6 @@ import Err
 
 Expression :: { Term }
 Expression : Conditional                                                  { $1 }
-           | List                                                         { $1 }
            | fn var '->' Expression                                       { Lambda $2 $4 }
            | let var ':' Variables '=' Expression in Expression           { Let $2 $4 $6 $8 }
            | let rec var ':' Variables '=' Expression in Expression       { LetRec $3 $5 $7 $9 }
@@ -82,9 +81,13 @@ Sum : Sum '+' Multiplication { ((Prim (:+)) :@ $1) :@ $3 }
     | Multiplication { $1 }
 
 Multiplication :: { Term }
-Multiplication : Multiplication '*' Application { ((Prim (:*)) :@ $1) :@ $3 }
-               | Multiplication '/' Application { ((Prim (:/)) :@ $1) :@ $3 }
-               | Application                    { $1 }
+Multiplication : Multiplication '*' Concat { ((Prim (:*)) :@ $1) :@ $3 }
+               | Multiplication '/' Concat { ((Prim (:/)) :@ $1) :@ $3 }
+               | Concat                    { $1 }
+
+Concat :: { Term }
+Concat : Concat ':' Application { ((Prim (:::)) :@ $1) :@ $3 }
+       | Application            { $1 }
 
 Application :: { Term }
 Application : Application Atomic     { $1 :@ $2 }
@@ -102,6 +105,7 @@ ListElements : {- empty -}                 { nil }
 Atomic :: { Term }
 Atomic : AtomicConstant     { Const $1 }
        | var                { Var $1 }
+       | List               { $1 }
        | '(' Expression ')' { $2 }
 
 AtomicConstant :: { Constant }

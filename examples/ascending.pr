@@ -1,0 +1,16 @@
+--
+-- Ascending List Function
+--
+
+let rec ascending_rec : size current_size list
+    = if current_size > size
+        then list
+        else current_size
+             : ascending_rec size (current_size + 1) list
+in
+
+let ascending : size
+    = ascending_rec size 1 []
+in
+
+ascending 10
