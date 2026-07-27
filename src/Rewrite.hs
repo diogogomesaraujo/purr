@@ -1,6 +1,6 @@
 module Rewrite where
 
-import STG
+import G
 import Ast
 
 -- | Function that tries to reduce sequences of combinators.
@@ -49,15 +49,15 @@ rewrite (AND ::@ (STGConst (CBool x)) ::@ (STGConst (CBool y)))
 rewrite (OR ::@ (STGConst (CBool x)) ::@ (STGConst (CBool y)))
     = (STGConst $ CBool (x || y))
 
-rewrite (STG.EQ ::@ (STGConst (CBool x)) ::@ (STGConst (CBool y)))
+rewrite (G.EQ ::@ (STGConst (CBool x)) ::@ (STGConst (CBool y)))
     = (STGConst $ CBool (x == y))
 rewrite (DIFF ::@ (STGConst (CBool x)) ::@ (STGConst (CBool y)))
     = (STGConst $ CBool (x /= y))
-rewrite (STG.EQ ::@ (STGConst (CFloat x)) ::@ (STGConst (CFloat y)))
+rewrite (G.EQ ::@ (STGConst (CFloat x)) ::@ (STGConst (CFloat y)))
     = (STGConst $ CBool (x == y))
 rewrite (DIFF ::@ (STGConst (CFloat x)) ::@ (STGConst (CFloat y)))
     = (STGConst $ CBool (x /= y))
-rewrite (STG.EQ ::@ (STGConst (CInt x)) ::@ (STGConst (CInt y)))
+rewrite (G.EQ ::@ (STGConst (CInt x)) ::@ (STGConst (CInt y)))
     = (STGConst $ CBool (x == y))
 rewrite (DIFF ::@ (STGConst (CInt x)) ::@ (STGConst (CInt y)))
     = (STGConst $ CBool (x /= y))

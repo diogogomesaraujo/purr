@@ -63,7 +63,7 @@ library
                       Parser,
                       Lexer,
                       Token,
-                      STG,
+                      G,
                       Fv,
                       Err,
                       Compile,

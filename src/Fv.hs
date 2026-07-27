@@ -2,6 +2,7 @@ module Fv where
 
 import Ast
 import Data.List
+import G
 
 -- Function that checks if a value exists inside a list.
 contains :: Eq a => a -> [a] -> Bool
@@ -18,5 +19,7 @@ fv (e1 :@ e2)            = fv e1 `union` fv e2
 fv _                     = []
 
 -- | Function that checks if there are any free variables in a term.
-isFv :: Identity -> Term -> Bool
-isFv v t = any (== v) $ fv t
+isFv :: Identity -> Combinator -> Bool
+isFv v (STGVar x)  = v == x
+isFv v (e1 ::@ e2) = isFv v e1 || isFv v e2
+isFv _ _           = False

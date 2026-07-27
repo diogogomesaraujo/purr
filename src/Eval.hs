@@ -1,6 +1,6 @@
 module Eval where
 
-import STG
+import G
 import Normal
 import Rewrite
 import Data.Generics.Uniplate.Data (descend)

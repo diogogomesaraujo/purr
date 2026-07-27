@@ -1,6 +1,6 @@
 {-# LANGUAGE DeriveDataTypeable #-}
 
-module STG where
+module G where
 import Ast
 import Data.Data (Data)
 

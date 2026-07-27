@@ -1,6 +1,6 @@
 module Normal where
 
-import STG
+import G
 import Rewrite
 
 normal :: Combinator -> Bool

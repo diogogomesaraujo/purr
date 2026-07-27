@@ -1,6 +1,6 @@
 module Compile where
 
-import STG
+import G
 import Ast
 import Err
 import Fv
@@ -40,44 +40,17 @@ compileSTG (e1 :@ e2)
          e2' <- compileSTG e2
          pure $ e1' ::@ e2'
 
-compileSTG (Lambda x (Var v))
-    | x == v = Right $ I
-
 compileSTG (Lambda x e)
-    | not $ isFv x e = (::@)
-        <$> Right K
-        <*> compileSTG e
-
-compileSTG (Lambda x (e :@ Var x'))
-    | x == x' && (not $ isFv x e) = compileSTG e
-
-compileSTG (Lambda x (e1 :@ e2))
-    | not $ isFv x e1 = do
-        e1' <- compileSTG e1
-        e2' <- compileSTG (Lambda x e2)
-        pure $ B ::@ e1' ::@ e2'
-
-compileSTG (Lambda x (e1 :@ e2))
-    | not $ isFv x e2 = do
-        e1' <- compileSTG (Lambda x e1)
-        e2' <- compileSTG e2
-        pure $ C ::@ e1' ::@ e2'
-
-compileSTG (Lambda x (e1 :@ e2))
-    | isFv x e1 && isFv x e2 = do
-        e1' <- compileSTG (Lambda x e1)
-        e2' <- compileSTG (Lambda x e2)
-        pure $ S ::@ e1' ::@ e2'
-
-compileSTG _
-    = Left $ Compiling $ "invalid lambda term"
+    = case compileSTG e of
+        Left err -> Left err
+        Right e' -> abstract x e'
 
 compilePrim :: Operation -> Combinator
 compilePrim (:+)       = ADD
 compilePrim (:-)       = SUB
 compilePrim (:*)       = MUL
 compilePrim (:/)       = DIV
-compilePrim (:==)      = STG.EQ
+compilePrim (:==)      = G.EQ
 compilePrim (:!=)      = DIFF
 compilePrim (:&&)      = AND
 compilePrim (:||)      = OR
@@ -86,6 +59,43 @@ compilePrim (:<=)      = LE
 compilePrim (:>)       = G
 compilePrim (:>=)      = GE
 compilePrim (Custom x) = STGVar x
+
+
+abstract :: Identity -> Combinator -> Either Err Combinator
+
+abstract x (STGVar v)
+    | x == v = Right $ I
+
+abstract x e
+    | not $ isFv x e = Right $ K ::@ e
+
+abstract x (e ::@ STGVar x')
+    | x == x' && (not $ isFv x e) = Right $ e
+
+abstract x (m ::@ n)
+    | not (isFv x m)
+        = (::@)
+        <$> ((::@)
+            <$> Right B
+            <*> Right m)
+        <*> abstract x n
+
+abstract x (m ::@ n)
+    | not (isFv x n)
+    = (::@)
+    <$> ((::@)
+        <$> Right C
+        <*> abstract x m)
+    <*> Right n
+
+abstract x (m ::@ n)
+    = (::@)
+    <$> ((::@)
+        <$> Right S
+        <*> abstract x m)
+    <*> abstract x n
+
+abstract _ _ = Left $ Compiling "invalid lambda term"
 
 -- | Function that replaces each variable in a let statement by a lambda function
 -- with the variable as the argument.
