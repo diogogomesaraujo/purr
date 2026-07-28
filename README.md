@@ -49,7 +49,7 @@ There are several examples you can try in the [`examples`](./examples) folder su
 
 1. Increment
 ```ocaml
-let incr : x =
+let incr :=
   fn x -> x + 1
 in incr 1
 ```
