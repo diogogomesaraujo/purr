@@ -15,7 +15,7 @@ eval e
 step :: Spine -> Spine
 
 step (STGVar "cons":e1:e2:xs)
-    = CAT:e1:e2:xs
+    = CONS:e1:e2:xs
 
 step (STGVar "nil":xs)
     = (STGConst $ CList []):xs
@@ -108,10 +108,10 @@ step (G:e1:e2:xs)
 step (GE:e1:e2:xs)
     = eval $ [GE] ++ (eval $ unwind [e1]) ++ (eval $ unwind [e2]) ++ xs
 
-step (CAT:(STGConst c):(STGConst (CList l)):xs)
+step (CONS:(STGConst c):(STGConst (CList l)):xs)
     = eval $ (STGConst $ CList $ c:l):xs
-step (CAT:e1:e2:xs)
-    = eval $ [CAT] ++ (eval $ unwind [e1]) ++ (eval $ unwind [e2]) ++ xs
+step (CONS:e1:e2:xs)
+    = eval $ [CONS] ++ (eval $ unwind [e1]) ++ (eval $ unwind [e2]) ++ xs
 
 step (STGIf:(STGConst (CBool x)):e1:e2:xs)
     | x         = eval $ e1:xs

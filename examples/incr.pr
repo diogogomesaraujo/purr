@@ -1,0 +1,9 @@
+--
+-- Increment Function Example
+--
+
+let incr :=
+    fn x -> x + 1
+in
+
+incr 10

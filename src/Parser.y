@@ -81,13 +81,13 @@ Sum : Sum '+' Multiplication { ((Prim (:+)) :@ $1) :@ $3 }
     | Multiplication { $1 }
 
 Multiplication :: { Term }
-Multiplication : Multiplication '*' Concat { ((Prim (:*)) :@ $1) :@ $3 }
-               | Multiplication '/' Concat { ((Prim (:/)) :@ $1) :@ $3 }
-               | Concat                    { $1 }
+Multiplication : Multiplication '*' Cons { ((Prim (:*)) :@ $1) :@ $3 }
+               | Multiplication '/' Cons { ((Prim (:/)) :@ $1) :@ $3 }
+               | Cons                    { $1 }
 
-Concat :: { Term }
-Concat : Concat ':' Application { ((Prim (:::)) :@ $1) :@ $3 }
-       | Application            { $1 }
+Cons :: { Term }
+Cons : Cons ':' Application   { ((Prim (:::)) :@ $1) :@ $3 }
+     | Application            { $1 }
 
 Application :: { Term }
 Application : Application Atomic     { $1 :@ $2 }

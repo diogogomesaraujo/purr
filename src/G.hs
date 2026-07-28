@@ -10,7 +10,7 @@ data Combinator = STGVar Identity
                 | ADD | MUL | SUB | DIV
                 | AND | OR | EQ | DIFF
                 | GE | G | LE | L
-                | CAT
+                | CONS
                 | STGConst Constant
                 | STGIf
                 deriving (Show, Eq, Data)

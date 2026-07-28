@@ -58,7 +58,7 @@ compilePrim (:<)       = L
 compilePrim (:<=)      = LE
 compilePrim (:>)       = G
 compilePrim (:>=)      = GE
-compilePrim (:::)      = CAT
+compilePrim (:::)      = CONS
 compilePrim (Custom x) = STGVar x
 
 -- | Function that compiles a lambda function depending on the internal expression.

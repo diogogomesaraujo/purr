@@ -35,7 +35,12 @@ In order to run this project from source, you will need to have Haskell and `cab
 
 You can execute programs written in files with the following command:
 ```bash
-cabal run purr -- -f <file_path>
+cabal run purr -- <file_path>
+```
+
+And use a playground environment with:
+```bash
+cabal run purr
 ```
 
 ## Code Examples
