@@ -33,7 +33,16 @@ In order to run this project from source, you will need to have Haskell and `cab
 
 ### Command-line Tool
 
-You can execute programs written in files with the following command:
+Before executing the program you have to compile the lexer and the parser with the following commands:
+```bash
+# compile the lexer
+alex src/Lexer.x
+
+# compile the parser
+happy src/Parser.y --ghc
+```
+
+Then, you can execute programs written in files with the following command:
 ```bash
 cabal run purr -- <file_path>
 ```
