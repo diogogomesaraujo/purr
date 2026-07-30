@@ -1,7 +1,4 @@
-{-# LANGUAGE DeriveDataTypeable #-}
-
 module Ast where
-import Data.Data (Data)
 
 type Identity = String
 
@@ -9,7 +6,7 @@ data Constant = CInt   Int
               | CFloat Float
               | CBool  Bool
               | CList [Constant]
-              deriving (Show, Eq, Data)
+              deriving (Show, Eq)
 
 data Operation = (:+)
                | (:-)
@@ -29,7 +26,7 @@ data Operation = (:+)
 
 data Term = Var    Identity
           | Const  Constant
-          | Lambda Identity Term
+          | Lambda [Identity] Term
           | Term :@ Term
           | If     Term Term Term
           | Let    Identity [Identity] Term Term

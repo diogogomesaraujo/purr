@@ -14,7 +14,7 @@ contains x xs
 -- | Function that returns the free variables in a term.
 fv :: Term -> [Identity]
 fv (Var x)               = [x]
-fv (Lambda x e)          = delete x (fv e)
+fv (Lambda xs e)         = (fv e) \\ xs
 fv (e1 :@ e2)            = fv e1 `union` fv e2
 fv _                     = []
 

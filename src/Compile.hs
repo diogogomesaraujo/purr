@@ -25,11 +25,11 @@ compileSTG (If e1 e2 e3)
 
 compileSTG (Let x xs e1 e2)
     = let e1' = replaceVars xs e1
-    in compileSTG (Lambda x e2 :@ e1')
+    in compileSTG (Lambda [x] e2 :@ e1')
 
 compileSTG (LetRec x xs e1 e2)
-    = let e1' = Fix $ Lambda x $ replaceVars xs e1
-    in compileSTG (Lambda x e2 :@ e1')
+    = let e1' = Fix $ Lambda [x] $ replaceVars xs e1
+    in compileSTG (Lambda [x] e2 :@ e1')
 
 compileSTG (Fix e)
     = do e' <- compileSTG e
@@ -40,10 +40,13 @@ compileSTG (e1 :@ e2)
          e2' <- compileSTG e2
          pure $ e1' ::@ e2'
 
-compileSTG (Lambda x e)
+compileSTG (Lambda [x] e)
     = case compileSTG e of
         Left err -> Left err
         Right e' -> abstract x e'
+
+compileSTG (Lambda xs e)
+    = compileSTG $ replaceVars xs e
 
 compilePrim :: Operation -> Combinator
 compilePrim (:+)       = ADD
@@ -101,5 +104,6 @@ abstract _ _ = Left $ Compiling "invalid lambda term"
 -- | Function that replaces each variable in a let statement by a lambda function
 -- with the variable as the argument.
 replaceVars :: [Identity] -> Term -> Term
-replaceVars xs e
-    = foldr Lambda e xs
+replaceVars [] e = e
+replaceVars (x:xs) e
+    = Lambda [x] $ replaceVars xs e

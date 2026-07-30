@@ -49,7 +49,7 @@ import Err
 
 Expression :: { Term }
 Expression : Conditional                                                  { $1 }
-           | fn var '->' Expression                                       { Lambda $2 $4 }
+           | fn var Variables '->' Expression                             { Lambda ($2:$3) $5 }
            | let var ':' Variables '=' Expression in Expression           { Let $2 $4 $6 $8 }
            | let rec var ':' Variables '=' Expression in Expression       { LetRec $3 $5 $7 $9 }
            | let '(' sym ')' ':' var var '=' Expression in Expression     { Let $3 [$6, $7] $9 $11 }

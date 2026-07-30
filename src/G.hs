@@ -1,8 +1,6 @@
-{-# LANGUAGE DeriveDataTypeable #-}
-
 module G where
+
 import Ast
-import Data.Data (Data)
 
 data Combinator = STGVar Identity
                 | Combinator ::@ Combinator -- Application
@@ -13,7 +11,7 @@ data Combinator = STGVar Identity
                 | CONS
                 | STGConst Constant
                 | STGIf
-                deriving (Show, Eq, Data)
+                deriving (Show, Eq)
 
 cons :: Combinator
 cons = STGVar "cons"

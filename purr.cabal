@@ -69,7 +69,9 @@ library
                       Compile,
                       Rewrite,
                       Eval,
-                      Unwind
+                      Unwind,
+                      Typed,
+                      Env
 
     -- Modules included in this library but not exported.
     -- other-modules:
