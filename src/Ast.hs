@@ -24,15 +24,18 @@ data Operation = (:+)
                | Custom String
                deriving (Show, Eq)
 
-data Term = Var    Identity
-          | Const  Constant
-          | Lambda [Identity] Term
+data Term = Var         Identity
+          | Const       Constant
+          | Lambda      [Identity] Term
+          | TypedLambda [Identity] DeclaredType Term
           | Term :@ Term
-          | If     Term Term Term
-          | Let    Identity [Identity] Term Term
-          | LetRec Identity [Identity] Term Term
-          | Fix    Term
-          | Prim   Operation
+          | If          Term Term Term
+          | Let         Identity [Identity] Term Term
+          | TypedLet    Identity [Identity] DeclaredType Term Term
+          | LetRec      Identity [Identity] Term Term
+          | TypedLetRec Identity [Identity] DeclaredType Term Term
+          | Fix         Term
+          | Prim        Operation
           deriving (Show, Eq)
 
 cons :: Term -> Term -> Term
@@ -40,3 +43,7 @@ cons x y = (Var "cons" :@ x) :@ y
 
 nil :: Term
 nil = Var "nil"
+
+data DeclaredType = TVar Identity
+             | DeclaredType ::-> DeclaredType
+             deriving (Show, Eq)

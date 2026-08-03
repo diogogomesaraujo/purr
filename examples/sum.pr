@@ -1,1 +1,5 @@
-let sum : x y = x + y in sum 2 3
+let sum : x y : int -> int -> int =
+    x + y
+in
+
+sum 2 3

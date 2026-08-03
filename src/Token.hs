@@ -6,7 +6,8 @@ data Token = TokenFix
            | TokenIf
            | TokenThen
            | TokenElse
-           | TokenFn
+           | TokenPoint
+           | TokenLambda
            | TokenIn
            | TokenTrue
            | TokenFalse

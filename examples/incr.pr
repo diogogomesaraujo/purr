@@ -3,7 +3,7 @@
 --
 
 let incr :=
-    fn x -> x + 1
+    \x . x + 1
 in
 
 incr 10

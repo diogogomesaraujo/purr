@@ -10,7 +10,7 @@ $digit      = [0-9]
 $large      = [A-Z]
 $small      = [a-z\_]
 $alpha      = [$small $large]
-$ascsymbol  = [\!\#\$\%\&\*\+\.\/\<\=\>\?\@\\\^\|\-\~]
+$ascsymbol  = [\!\#\$\%\&\*\+\.\/\<\=\>\?\@\^\|\-\~]
 
 @int   = "-"?$digit+
 @float = "-"?$digit+ "." $digit+
@@ -27,7 +27,6 @@ tokens :-
     else                                  { \_ -> TokenElse }
     true                                  { \_ -> TokenTrue }
     false                                 { \_ -> TokenFalse }
-    fn                                    { \_ -> TokenFn }
     "->"                                  { \_ -> TokenArrow }
     "="                                   { \_ -> TokenAssign }
     ":"                                   { \_ -> TokenPoints }
@@ -49,6 +48,8 @@ tokens :-
     "["                                   { \_ -> TokenLParRect }
     "]"                                   { \_ -> TokenRParRect }
     ","                                   { \_ -> TokenComma }
+    "."                                   { \_ -> TokenPoint }
+    [\\]                                  { \_ -> TokenLambda }
     @int                                  { \s -> TokenInt (read s) }
     @float                                { \s -> TokenFloat (read s) }
     [$alpha \_] [$alpha $digit \_ \']*    { \s -> TokenVar s }

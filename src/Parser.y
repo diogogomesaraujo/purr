@@ -5,9 +5,9 @@ import Token
 import Err
 }
 
-%name parse
-%tokentype { Token }
-%error     { parseError }
+%name parse Expression
+%tokentype  { Token }
+%error      { parseError }
 
 %token
     fix   { TokenFix }
@@ -16,7 +16,6 @@ import Err
     if    { TokenIf }
     then  { TokenThen }
     else  { TokenElse }
-    fn    { TokenFn }
     in    { TokenIn }
     int   { TokenInt $$ }
     float { TokenFloat $$ }
@@ -24,6 +23,8 @@ import Err
     sym   { TokenSym $$ }
     true  { TokenTrue }
     false { TokenFalse }
+    '.'   { TokenPoint }
+    '\\'  { TokenLambda }
     '='   { TokenAssign }
     ':'   { TokenPoints }
     '->'  { TokenArrow }
@@ -47,15 +48,30 @@ import Err
 
 %%
 
+TypeDeclaration :: { DeclaredType }
+TypeDeclaration : var                      { TVar $1 }
+                | var '->' TypeDeclaration { TVar $1 ::-> ($3) }
+                | '(' TypeDeclaration ')'  { $2 }
+
 Expression :: { Term }
-Expression : Conditional                                                  { $1 }
-           | fn var Variables '->' Expression                             { Lambda ($2:$3) $5 }
-           | let var ':' Variables '=' Expression in Expression           { Let $2 $4 $6 $8 }
-           | let rec var ':' Variables '=' Expression in Expression       { LetRec $3 $5 $7 $9 }
-           | let '(' sym ')' ':' var var '=' Expression in Expression     { Let $3 [$6, $7] $9 $11 }
-           | let rec '(' sym ')' ':' var var '=' Expression in Expression { LetRec $4 [$7, $8] $10 $12 }
-           | if Expression then Expression else Expression                { If $2 $4 $6 }
-           | fix Atomic                                                   { Fix $2 }
+Expression : Conditional                                                                      { $1 }
+           | '\\' var Variables '.' Expression                                                { Lambda ($2:$3) $5 }
+           | '\\' var Variables ':' TypeDeclaration '.' Expression                            { TypedLambda ($2:$3) $5 $7 }
+
+           | let var ':' Variables '=' Expression in Expression                               { Let $2 $4 $6 $8 }
+           | let var ':' Variables ':' TypeDeclaration '=' Expression in Expression           { TypedLet $2 $4 $6 $8 $10 }
+
+           | let rec var ':' Variables '=' Expression in Expression                           { LetRec $3 $5 $7 $9 }
+           | let rec var ':' Variables ':' TypeDeclaration '=' Expression in Expression       { TypedLetRec $3 $5 $7 $9 $11 }
+
+           | let '(' sym ')' ':' var var '=' Expression in Expression                         { Let $3 [$6, $7] $9 $11 }
+           | let '(' sym ')' ':' var var ':' TypeDeclaration '=' Expression in Expression     { TypedLet $3 [$6, $7] $9 $11 $13 }
+
+           | let rec '(' sym ')' ':' var var '=' Expression in Expression                     { LetRec $4 [$7, $8] $10 $12 }
+           | let rec '(' sym ')' ':' var var ':' TypeDeclaration '=' Expression in Expression { TypedLetRec $4 [$7, $8] $10 $12 $14 }
+
+           | if Expression then Expression else Expression                                    { If $2 $4 $6 }
+           | fix Atomic                                                                       { Fix $2 }
 
 Variables :: { [Identity] }
 Variables : {- empty -} { [] }
