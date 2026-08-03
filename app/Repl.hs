@@ -69,5 +69,5 @@ getText = getTextRec []
     where getTextRec t = do
             line <- getLine
             case Prelude.reverse $ unpack $ strip $ pack line of
-                ';':';':rest -> pure $ t ++ " " ++ rest
+                ';':';':rest -> pure $ t ++ " " ++ Prelude.reverse rest
                 _  -> getTextRec $ t ++ "" ++ line

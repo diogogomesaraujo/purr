@@ -6,10 +6,9 @@ import Token
 
 %wrapper "basic"
 
-$whitespace = [ \t\n\r\f\v]
 $digit      = [0-9]
 $large      = [A-Z]
-$small      = [a-z]
+$small      = [a-z\_]
 $alpha      = [$small $large]
 $ascsymbol  = [\!\#\$\%\&\*\+\.\/\<\=\>\?\@\\\^\|\-\~]
 
@@ -17,7 +16,7 @@ $ascsymbol  = [\!\#\$\%\&\*\+\.\/\<\=\>\?\@\\\^\|\-\~]
 @float = "-"?$digit+ "." $digit+
 
 tokens :-
-    $whitespace+                          ;
+    $white+                               ;
     "--".*                                ;
     fix                                   { \_ -> TokenFix }
     let                                   { \_ -> TokenLet }
@@ -30,6 +29,7 @@ tokens :-
     false                                 { \_ -> TokenFalse }
     fn                                    { \_ -> TokenFn }
     "->"                                  { \_ -> TokenArrow }
+    "="                                   { \_ -> TokenAssign }
     ":"                                   { \_ -> TokenPoints }
     "+"                                   { \_ -> TokenPlus }
     "-"                                   { \_ -> TokenMinus }
@@ -37,19 +37,19 @@ tokens :-
     "*"                                   { \_ -> TokenTimes }
     "("                                   { \_ -> TokenLPar }
     ")"                                   { \_ -> TokenRPar }
-    ">="                                  { \_ -> TokenMoreEqual }
-    "<="                                  { \_ -> TokenLessEqual }
     ">"                                   { \_ -> TokenMore }
+    ">="                                  { \_ -> TokenMoreEqual }
     "<"                                   { \_ -> TokenLess }
+    "<="                                  { \_ -> TokenLessEqual }
     "=="                                  { \_ -> TokenEquals }
     "!="                                  { \_ -> TokenDifferent }
-    "="                                   { \_ -> TokenAssign }
     "&&"                                  { \_ -> TokenAnd }
     "||"                                  { \_ -> TokenOr }
+    ">="                                  { \_ -> TokenMoreEqual }
     "["                                   { \_ -> TokenLParRect }
     "]"                                   { \_ -> TokenRParRect }
     ","                                   { \_ -> TokenComma }
-    @float                                { \s -> TokenFloat (read s) }
     @int                                  { \s -> TokenInt (read s) }
+    @float                                { \s -> TokenFloat (read s) }
     [$alpha \_] [$alpha $digit \_ \']*    { \s -> TokenVar s }
-    $ascsymbol+                           { \s -> TokenSym s }
+    $ascsymbol [$ascsymbol]*              { \s -> TokenSym s }
