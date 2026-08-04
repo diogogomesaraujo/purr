@@ -5,6 +5,7 @@ import Ast
 data Typ = TBool
          | TInt
          | TFloat
+         | TList Typ
          | Typ :-> Typ
          deriving (Show, Eq)
 

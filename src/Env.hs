@@ -126,10 +126,36 @@ typeOfLambda xs t e env
           env'     = foldArgs xs env t'
       in typeOf env' e
 
+typeOfComp :: String -> Term -> StaticEnv -> EitherTyp
+typeOfComp p e env
+    = do t1 <- typeOf env e
+         case t1 of
+            TInt   -> Right $ TInt :-> TBool
+            TFloat -> Right $ TFloat :-> TBool
+            TBool  -> Right $ TBool :-> TBool
+            _      -> Left
+                      $ Compiling
+                      $ p
+                        ++ ": "
+                        ++ "arguments must be either float or int or bool, not "
+                        ++ show t1
+
+typeOfProp :: String -> Term -> StaticEnv -> EitherTyp
+typeOfProp p e env
+    = do t1 <- typeOf env e
+         case t1 of
+            TBool  -> Right $ TBool :-> TBool
+            _      -> Left
+                      $ Compiling
+                      $ p
+                        ++ ": "
+                        ++ "arguments must be bool, not "
+                        ++ show t1
+
 typeOfArith :: Identity -> Term -> StaticEnv -> EitherTyp
 typeOfArith p e env =
-    do t1 <- typeOf env e
-       case t1 of
+    do t <- typeOf env e
+       case t of
                 TInt   -> Right $ TInt :-> TInt
                 TFloat -> Right $ TFloat :-> TFloat
                 _              -> Left
@@ -137,7 +163,12 @@ typeOfArith p e env =
                                   $ p
                                     ++ ": "
                                     ++ "arguments must be either float or int, not "
-                                    ++ show t1
+                                    ++ show t
+
+typeOfCons :: Term -> StaticEnv -> EitherTyp
+typeOfCons e env
+    = do t <- typeOf env e
+         Right $ TList t
 
 foldArgs :: [Identity] -> StaticEnv -> Typ -> StaticEnv
 foldArgs (x:xs) env (t1 :-> t2)
