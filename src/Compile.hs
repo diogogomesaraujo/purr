@@ -48,6 +48,15 @@ compileSTG (Lambda [x] e)
 compileSTG (Lambda xs e)
     = compileSTG $ replaceVars xs e
 
+compileSTG (TypedLambda xs _ e)
+    = compileSTG $ Lambda xs e
+
+compileSTG (TypedLet x xs _ e1 e2)
+    = compileSTG $ Let x xs e1 e2
+
+compileSTG (TypedLetRec x xs _ e1 e2)
+    = compileSTG $ LetRec x xs e1 e2
+
 compilePrim :: Operation -> Combinator
 compilePrim (:+)       = ADD
 compilePrim (:-)       = SUB

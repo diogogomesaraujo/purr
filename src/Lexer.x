@@ -13,11 +13,13 @@ $alpha      = [$small $large]
 $ascsymbol  = [\!\#\$\%\&\*\+\.\/\<\=\>\?\@\^\|\-\~]
 
 @int   = "-"?$digit+
-@float = "-"?$digit+ "." $digit+
+@float = "-"?$digit+ "." $digit*
 
 tokens :-
     $white+                               ;
     "--".*                                ;
+    @int                                  { \s -> TokenInt (read s) }
+    @float                                { \s -> TokenFloat (read s) }
     fix                                   { \_ -> TokenFix }
     let                                   { \_ -> TokenLet }
     rec                                   { \_ -> TokenRec }
@@ -50,7 +52,5 @@ tokens :-
     ","                                   { \_ -> TokenComma }
     "."                                   { \_ -> TokenPoint }
     [\\]                                  { \_ -> TokenLambda }
-    @int                                  { \s -> TokenInt (read s) }
-    @float                                { \s -> TokenFloat (read s) }
     [$alpha \_] [$alpha $digit \_ \']*    { \s -> TokenVar s }
     $ascsymbol [$ascsymbol]*              { \s -> TokenSym s }

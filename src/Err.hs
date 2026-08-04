@@ -4,7 +4,7 @@ import Token (Token)
 -- | Type that defines the errors that can happen at compilation time.
 data Err = Compiling String
          | Parsing [Token]
-         deriving Show
+         deriving (Show, Eq)
 
 -- | Function that shows a compile time error.
 showErr :: Err -> String
