@@ -11,7 +11,7 @@ data Typ = TBool
 infixr 4 :->
 
 absTyp :: Typ -> Typ
-absTyp (_ :-> t2) = t2
+absTyp (_ :-> t2) = absTyp t2
 absTyp t = t
 
 typFromId :: Identity -> Typ
