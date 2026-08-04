@@ -37,17 +37,17 @@ typeOf env (If e1 e2 e3)
 typeOf env (Fix e)
     = typeOfFix e env
 
-typeOf env (Prim (:+) :@ e1 :@ e2)
-    = typeOfArith "+" e1 e2 env
+typeOf env (Prim (:+) :@ e1)
+    = typeOfArith "+" e1 env
 
-typeOf env (Prim (:-) :@ e1 :@ e2)
-    = typeOfArith "-" e1 e2 env
+typeOf env (Prim (:-) :@ e1)
+    = typeOfArith "-" e1 env
 
-typeOf env (Prim (:*) :@ e1 :@ e2)
-    = typeOfArith "*" e1 e2 env
+typeOf env (Prim (:*) :@ e1)
+    = typeOfArith "*" e1 env
 
-typeOf env (Prim (:/) :@ e1 :@ e2)
-    = typeOfArith "/" e1 e2 env
+typeOf env (Prim (:/) :@ e1)
+    = typeOfArith "/" e1 env
 
 typeOf env (e1 :@ e2)
     = typeOfApp e1 e2 env
@@ -114,7 +114,7 @@ typeOfLet x xs t e1 e2 env
 typeOfLetRec :: Identity -> [Identity] -> DeclaredType -> Term -> Term -> StaticEnv -> EitherTyp
 typeOfLetRec x xs t e1 e2 env
     = do  t'       <- pure $ typFromDeclaredType t
-          env'     <- pure $ (x, t' :-> absTyp t'):foldArgs xs env t'
+          env'     <- pure $ (x, t'):foldArgs xs env t'
           t1       <- typeOf env' e1
           if t1 == absTyp t'
             then typeOf env' e2
@@ -126,19 +126,18 @@ typeOfLambda xs t e env
           env'     = foldArgs xs env t'
       in typeOf env' e
 
-typeOfArith :: Identity -> Term -> Term -> StaticEnv -> EitherTyp
-typeOfArith p e1 e2 env =
-    do t1 <- typeOf env e1
-       t2 <- typeOf env e2
-       if t1 == t2
-            then case t1 of
-                TInt   -> Right $ TInt
-                TFloat -> Right $ TFloat
+typeOfArith :: Identity -> Term -> StaticEnv -> EitherTyp
+typeOfArith p e env =
+    do t1 <- typeOf env e
+       case t1 of
+                TInt   -> Right $ TInt :-> TInt
+                TFloat -> Right $ TFloat :-> TFloat
                 _              -> Left
                                   $ Compiling
-                                  $ "arguments must be either float or int, not "
+                                  $ p
+                                    ++ ": "
+                                    ++ "arguments must be either float or int, not "
                                     ++ show t1
-            else typesDifferErr e1 t1 e2 t2 p
 
 foldArgs :: [Identity] -> StaticEnv -> Typ -> StaticEnv
 foldArgs (x:xs) env (t1 :-> t2)
