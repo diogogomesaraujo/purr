@@ -13,7 +13,7 @@ $alpha      = [$small $large]
 $ascsymbol  = [\!\#\$\%\&\*\+\.\/\<\=\>\?\@\^\|\-\~]
 
 @int   = "-"?$digit+
-@float = "-"?$digit+ "." $digit*
+@float = "-"?$digit+ "." $digit+
 
 tokens :-
     $white+                               ;
