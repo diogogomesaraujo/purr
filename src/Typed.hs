@@ -21,6 +21,8 @@ type Subst = [(Typ, Typ)]
 
 type EitherTyp = Either Err Typ
 
+type EitherTypInfer = Either Err (Typ, Subst)
+
 absTyp :: Typ -> Typ
 absTyp (_ :-> t2) = absTyp t2
 absTyp t = t
