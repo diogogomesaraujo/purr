@@ -58,6 +58,7 @@ compileSTG (TypedLet x xs _ e1 e2)
 compileSTG (TypedLetRec x xs _ e1 e2)
     = compileSTG $ LetRec x xs e1 e2
 
+-- | Function that compiles all operators.
 compilePrim :: Operation -> Combinator
 compilePrim (:+)       = ADD
 compilePrim (:-)       = SUB
@@ -74,6 +75,7 @@ compilePrim (:>=)      = GE
 compilePrim (:::)      = CONS
 compilePrim (Custom x) = STGVar x
 
+-- | Function that compiles constants.
 compileConst :: Constant -> Either Err STGConstant
 
 compileConst (CInt i)

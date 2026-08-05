@@ -5,7 +5,8 @@ import Err
 import Typed
 import Unify
 
-typeOf :: StaticEnv -> Term -> EitherTypInfer
+-- | Function that returns the type of a term or fails doing so, if it does not respect the language's type system.
+typeOf :: StaticEnv -> Term -> EitherTypSubst
 
 typeOf _ (Const (CBool _))
     = Right (TBool, [])
@@ -81,7 +82,8 @@ typeOf env (e1 :@ e2)
 
 typeOf _ _ = Left $ Compiling "todo"
 
-typeOfList :: [Term] -> StaticEnv -> EitherTypInfer
+-- | Function that checks the type of a list.
+typeOfList :: [Term] -> StaticEnv -> EitherTypSubst
 typeOfList [] env
     = Right (TList $ TVar $ newTVarName env, [])
 typeOfList l env
@@ -93,7 +95,8 @@ typeOfList l env
                             Right s' -> typeOfList' xs (apply s' t)
                             _       -> Left $ Compiling $ "types in list don't match" --todo
 
-typeOfIf :: Term -> Term -> Term -> StaticEnv -> EitherTypInfer
+-- | Function that checks the type of an if term.
+typeOfIf :: Term -> Term -> Term -> StaticEnv -> EitherTypSubst
 typeOfIf e1 e2 e3 env
     = do (t1', s1) <- typeOf env e1
          case unify t1' TBool s1 of
@@ -112,13 +115,15 @@ typeOfIf e1 e2 e3 env
                     ++ show e1
                     ++ " does not match the type of the other expression"
 
-typeOfFix :: Term -> StaticEnv -> EitherTypInfer
+-- | Function that checks the type of an fixpoint term.
+typeOfFix :: Term -> StaticEnv -> EitherTypSubst
 typeOfFix e env
     = do (t, s) <- typeOf env e
          s' <- unify t ((TVar "a" :-> TVar "a") :-> TVar "a") s
          Right (apply s' t, s')
 
-typeOfApp :: Term -> Term -> StaticEnv -> EitherTypInfer
+-- | Function that checks the type of an application.
+typeOfApp :: Term -> Term -> StaticEnv -> EitherTypSubst
 typeOfApp e1 e2 env
     = case typeOf env e1 of
        Right (t1 :-> t2, s) -> do
@@ -137,7 +142,8 @@ typeOfApp e1 e2 env
                             $ "tried to apply an argument to the non-function term "
                                 ++ show t
 
-typeOfLet :: Identity -> [Identity] -> DeclaredType -> Term -> Term -> StaticEnv -> EitherTypInfer
+-- | Function that checks the type of an let term.
+typeOfLet :: Identity -> [Identity] -> DeclaredType -> Term -> Term -> StaticEnv -> EitherTypSubst
 typeOfLet x xs t e1 e2 env
     = do  t'       <- pure $ typFromDeclaredType t
           env'     <- pure $ foldArgs xs env t'
@@ -146,7 +152,8 @@ typeOfLet x xs t e1 e2 env
             Right s -> typeOf (applyToEnv ((x, t'):env') s) e2
             _       -> typesDifferErr e1 t1 e1 (absTyp t') "let"
 
-typeOfLetRec :: Identity -> [Identity] -> DeclaredType -> Term -> Term -> StaticEnv -> EitherTypInfer
+-- | Function that checks the type of a let rec term.
+typeOfLetRec :: Identity -> [Identity] -> DeclaredType -> Term -> Term -> StaticEnv -> EitherTypSubst
 typeOfLetRec x xs t e1 e2 env
     = do  t'       <- pure $ typFromDeclaredType t
           env'     <- pure $ (x, t'):foldArgs xs env t'
@@ -155,7 +162,8 @@ typeOfLetRec x xs t e1 e2 env
                 Right s' -> typeOf (applyToEnv env' s') e2
                 _       -> typesDifferErr e1 t1 e1 (absTyp t') "let rec"
 
-typeOfLambda :: [Identity] -> DeclaredType -> Term -> StaticEnv -> EitherTypInfer
+-- | Function that checks the type of a lambda term.
+typeOfLambda :: [Identity] -> DeclaredType -> Term -> StaticEnv -> EitherTypSubst
 typeOfLambda xs t e env
     = let t1       = typFromDeclaredType t
           env'     = foldArgs xs env t1 in
@@ -164,7 +172,8 @@ typeOfLambda xs t e env
             Right s' -> Right (apply s t1, s')
             _        -> typesDifferErr e t2 e t1 "lambda"
 
-typeOfComp :: String -> Term -> StaticEnv -> EitherTypInfer
+-- | Function that checks the type of a comparison.
+typeOfComp :: String -> Term -> StaticEnv -> EitherTypSubst
 typeOfComp p e env
     = do (t, s) <- typeOf env e
          case unify t TInt s of
@@ -180,7 +189,8 @@ typeOfComp p e env
                                                 ++ "arguments must be either float or int or bool, not "
                                                 ++ show t
 
-typeOfProp :: String -> Term -> StaticEnv -> EitherTypInfer
+-- | Function that checks the type of a propositional logic conditional.
+typeOfProp :: String -> Term -> StaticEnv -> EitherTypSubst
 typeOfProp p e env
     = do (t, s) <- typeOf env e
          case unify t TBool s of
@@ -192,7 +202,8 @@ typeOfProp p e env
                         ++ "arguments must be bool, not "
                         ++ show t
 
-typeOfArith :: Identity -> Term -> StaticEnv -> EitherTypInfer
+-- | Function that checks the type of an arithmetic operation.
+typeOfArith :: Identity -> Term -> StaticEnv -> EitherTypSubst
 typeOfArith p e env =
     do (t, s) <- typeOf env e
        case unify t TInt s of
@@ -207,7 +218,8 @@ typeOfArith p e env =
                                     ++ "arguments must be either float or int, not "
                                     ++ show t
 
-typeOfCons :: Term -> Term -> StaticEnv -> EitherTypInfer
+-- | Function that checks the type of a cons operation.
+typeOfCons :: Term -> Term -> StaticEnv -> EitherTypSubst
 typeOfCons e1 e2 env
     = do (t1, s1) <- typeOf env e1
          (t2, s2) <- typeOf env e2
@@ -221,11 +233,13 @@ typeOfCons e1 e2 env
                          $ "cons: the second argument must be a list not "
                             ++ show t2
 
+-- | Function that adds the arguments' types to the static environment.
 foldArgs :: [Identity] -> StaticEnv -> Typ -> StaticEnv
 foldArgs (x:xs) env (t1 :-> t2)
     = (x, t1):foldArgs xs env t2
 foldArgs _ env _ = env
 
+-- | Function that returns the difference between the types of two expressions that should return the same type.
 typesDifferErr :: Term -> Typ -> Term -> Typ -> String -> Either Err a
 typesDifferErr e1 t1 e2 t2 cont
     = Left

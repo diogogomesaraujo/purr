@@ -38,12 +38,12 @@ data Term = Var         Identity
           | Prim        Operation
           deriving (Show, Eq)
 
+data DeclaredType = DVar Identity
+                  | DeclaredType ::-> DeclaredType
+                  deriving (Show, Eq)
+
 cons :: Term -> Term -> Term
 cons x y = (Var "cons" :@ x) :@ y
 
 nil :: Term
 nil = Var "nil"
-
-data DeclaredType = DVar Identity
-             | DeclaredType ::-> DeclaredType
-             deriving (Show, Eq)

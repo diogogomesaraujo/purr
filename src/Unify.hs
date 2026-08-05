@@ -4,10 +4,12 @@ import Typed
 import Err
 import Fv
 
+-- | Function that unifies two types or fails doing so.
 unify :: Typ -> Typ -> Subst -> Either Err Subst
 unify t1 t2 s
      = unify' (apply s t1) (apply s t2) s
 
+-- | Internal unify function.
 unify' :: Typ -> Typ -> Subst -> Either Err Subst
 
 unify' TBool TBool s
@@ -43,6 +45,7 @@ unifyErr t1 t2
     $ Compiling
     $ "couldn't unify " ++ show t1 ++ " with " ++ show t2
 
+-- | Function that applies substitutions to a type.
 apply :: Subst -> Typ -> Typ
 
 apply s (TVar v)
@@ -59,6 +62,7 @@ apply s (t1 :-> t2)
 apply _ t
     = t
 
+-- | Function that applies substitutions to the whole static environment.
 applyToEnv :: StaticEnv -> Subst -> StaticEnv
 applyToEnv env s
     = map (\(x, t) -> (x, apply s t)) env
