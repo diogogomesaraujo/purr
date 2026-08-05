@@ -2,6 +2,7 @@ module Fv where
 
 import Ast
 import Data.List
+import Typed
 import G
 
 -- Function that checks if a value exists inside a list.
@@ -23,3 +24,14 @@ isFv :: Identity -> Combinator -> Bool
 isFv v (STGVar x)  = v == x
 isFv v (e1 ::@ e2) = isFv v e1 || isFv v e2
 isFv _ _           = False
+
+isFvTyp :: Typ -> Identity -> Bool
+isFvTyp (TVar a) b
+    | a /= b    = False
+    | otherwise = True
+isFvTyp (TList a) b
+    = isFvTyp a b
+isFvTyp (t1 :-> t2) b
+    = isFvTyp t1 b || isFvTyp t2 b
+isFvTyp _ _
+    = False

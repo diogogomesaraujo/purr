@@ -2,6 +2,12 @@ module G where
 
 import Ast
 
+data STGConstant = STGInt   Int
+              | STGFloat Float
+              | STGBool  Bool
+              | STGList [Combinator]
+              deriving (Show, Eq)
+
 data Combinator = STGVar Identity
                 | Combinator ::@ Combinator -- Application
                 | S | K | I | B | C | Y
@@ -9,7 +15,7 @@ data Combinator = STGVar Identity
                 | AND | OR | EQ | DIFF
                 | GE | G | LE | L
                 | CONS
-                | STGConst Constant
+                | STGConst STGConstant
                 | STGIf
                 deriving (Show, Eq)
 

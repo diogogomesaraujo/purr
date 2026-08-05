@@ -49,8 +49,8 @@ import Err
 %%
 
 TypeDeclaration :: { DeclaredType }
-TypeDeclaration : var                      { TVar $1 }
-                | var '->' TypeDeclaration { TVar $1 ::-> ($3) }
+TypeDeclaration : var                      { DVar $1 }
+                | var '->' TypeDeclaration { DVar $1 ::-> ($3) }
                 | '(' TypeDeclaration ')'  { $2 }
 
 Expression :: { Term }
@@ -111,12 +111,12 @@ Application : Application Atomic     { $1 :@ $2 }
             | Atomic                 { $1 }
 
 List :: { Term }
-List : '[' ListElements ']' { $2 }
+List : '[' ListElements ']' { Const (CList $2) }
 
-ListElements :: { Term }
-ListElements : {- empty -}                 { nil }
-             | Expression                  { cons $1 nil }
-             | Expression ',' ListElements { cons $1 $3 }
+ListElements :: { [Term] }
+ListElements : {- empty -}                 { [] }
+             | Expression                  { [$1] }
+             | Expression ',' ListElements { $1:$3 }
 
 Atomic :: { Term }
 Atomic : AtomicConstant     { Const $1 }

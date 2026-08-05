@@ -5,7 +5,7 @@ type Identity = String
 data Constant = CInt   Int
               | CFloat Float
               | CBool  Bool
-              | CList [Constant]
+              | CList [Term]
               deriving (Show, Eq)
 
 data Operation = (:+)
@@ -44,6 +44,6 @@ cons x y = (Var "cons" :@ x) :@ y
 nil :: Term
 nil = Var "nil"
 
-data DeclaredType = TVar Identity
+data DeclaredType = DVar Identity
              | DeclaredType ::-> DeclaredType
              deriving (Show, Eq)

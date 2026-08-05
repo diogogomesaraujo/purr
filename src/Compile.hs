@@ -9,7 +9,8 @@ import Fv
 compileSTG :: Term ->  Either Err Combinator
 
 compileSTG (Const x)
-    = Right $ STGConst x
+    = do c <- compileConst x
+         Right $ STGConst c
 
 compileSTG (Var v)
     = Right $ STGVar v
@@ -72,6 +73,21 @@ compilePrim (:>)       = G
 compilePrim (:>=)      = GE
 compilePrim (:::)      = CONS
 compilePrim (Custom x) = STGVar x
+
+compileConst :: Constant -> Either Err STGConstant
+
+compileConst (CInt i)
+    = Right $ STGInt i
+
+compileConst (CFloat f)
+    = Right $ STGFloat f
+
+compileConst (CBool b)
+    = Right $ STGBool b
+
+compileConst (CList l)
+    = do l' <- mapM compileSTG l
+         Right $ STGList l'
 
 -- | Function that compiles a lambda function depending on the internal expression.
 abstract :: Identity -> Combinator -> Either Err Combinator
