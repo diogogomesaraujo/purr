@@ -48,10 +48,14 @@ import Err
 
 %%
 
+TypeDeclarationAtomic :: { DeclaredType }
+TypeDeclarationAtomic : var                      { DVar $1 }
+                      | '[' TypeDeclaration ']'  { DList $2 }
+                      | '(' TypeDeclaration ')'  { $2 }
+
 TypeDeclaration :: { DeclaredType }
-TypeDeclaration : var                      { DVar $1 }
-                | var '->' TypeDeclaration { DVar $1 ::-> ($3) }
-                | '(' TypeDeclaration ')'  { $2 }
+TypeDeclaration : TypeDeclarationAtomic                      { $1 }
+                | TypeDeclarationAtomic '->' TypeDeclaration { $1 ::-> ($3) }
 
 Expression :: { Term }
 Expression : Conditional                                                                      { $1 }

@@ -1,6 +1,6 @@
 <br />
 <div align="center">
-  <h3 align="center">purr</h3>
+    <img src="./assets/purr.png" alt="purr" style="width: 200px;"/>
   <p align="center">
       A *purr*ely functional programming language.
   </p>
@@ -13,15 +13,39 @@ This repository contains a compiler and interpreter for a lazy evaluation progra
 
 It was built as a hobby project to retain concepts like lambda calculus, graph reduction, type inference and lazy evaluation learnt from the Fundamentals of Programming Languages and Implementation of Programming Languages courses of my Master's Degree in Computer Science at Universidade do Porto.
 
+## Type System
+
+Much like any functional programming language, `purr` is strongly typed (at compile-time) and uses the Hindley-Milner/Damas-Milner algorithm for inferring types without the programmer intervention.
+
+### Syntax
+```
+type ::= int | bool | float | string | type -> type | [type] 
+```
+
+### Example 
+
+A wrapper for the cons operation can be defined by the following expressions:
+
+```ocaml
+let my_cons : x xs = x:xs in my_cons 3 [1,2]
+```
+```ocaml
+let my_cons : x xs : a -> [a] -> [a] = x:xs in my_cons 3 [1,2]
+```
+```ocaml
+let my_cons : x xs : int -> [int] -> [int] = x:xs in my_cons 3 [1,2]
+```
+
 ## Language Features
 
 - Boolean, ints and floats;
 - Comments (`-- ...`);
 - Conditionals (`if then else`, `==`, `!=`, `<`, `>`, `<=`, `>=`, `&&`, `||`);
 - Arithmetic expressions (`+`, `-`, `/`, `*`);
-- Lambda Functions (`fn x -> ...`);
+- Lambda Functions (`\x . ...`);
 - Variable Declaration (`let x := ...`);
 - Recursive and Non-Recursive Functions (`let f : x = ... in ...`, `let rec f : x = ... in ...`);
+- Optional type declarations (let x : a = ... in ..., \x : a -> b . ...)
 - Custom Operators (`let (**) : x y = x * y in x ** y`)
 - Lists (`[...,...]`, `-...:[]`).
 
@@ -42,14 +66,19 @@ alex src/Lexer.x
 happy src/Parser.y --ghc
 ```
 
+Then you have to install the command-line tool:
+```bash
+cabal install exe:purr
+```
+
 Then, you can execute programs written in files with the following command:
 ```bash
-cabal run purr -- <file_path>
+purr <file_path>
 ```
 
 And use a playground environment with:
 ```bash
-cabal run purr
+purr
 ```
 
 ## Code Examples

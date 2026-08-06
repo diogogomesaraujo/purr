@@ -74,8 +74,8 @@ typeOf env (Prim (:&&) :@ e1)
 typeOf env (Prim (:||) :@ e1)
     = typeOfProp "||" e1 env
 
-typeOf env (Prim (:::) :@ e1 :@ e2)
-    = do typeOfCons e1 e2 env
+typeOf env (Prim (:::) :@ e1)
+    = do typeOfCons e1 env
 
 typeOf env (e1 :@ e2)
     = typeOfApp e1 e2 env
@@ -219,33 +219,24 @@ typeOfArith p e env =
                                     ++ show t
 
 -- | Function that checks the type of a cons operation.
-typeOfCons :: Term -> Term -> StaticEnv -> EitherTypSubst
-typeOfCons e1 e2 env
-    = do (t1, s1) <- typeOf env e1
-         (t2, s2) <- typeOf env e2
-         case t2 of
-            TList t2' -> case unify t1 t2' (s1 ++ s2) of
-                            Right s ->
-                                Right $ (apply s (TList t1), s)
-                            _       -> typesDifferErr e1 t1 e2 t2 "list"
-            _         -> Left
-                         $ Compiling
-                         $ "cons: the second argument must be a list not "
-                            ++ show t2
+typeOfCons :: Term -> StaticEnv -> EitherTypSubst
+typeOfCons e env
+    = do (t, s) <- typeOf env e
+         Right $ (apply s (TList t :-> TList t), s)
+
+-- | Function that returns the difference between the types of two expressions that should return the same type.
+typesDifferErr :: Term -> Typ -> Term -> Typ -> String -> Either Err a
+typesDifferErr e1 t1 e2 t2 cont
+    = Left
+      $ Compiling
+      $ cont ++ ": the expression "
+          ++ show e1 ++ " with type "
+          ++ show t1 ++ " does not match "
+          ++ show e2 ++ " with type "
+          ++ show t2
 
 -- | Function that adds the arguments' types to the static environment.
 foldArgs :: [Identity] -> StaticEnv -> Typ -> StaticEnv
 foldArgs (x:xs) env (t1 :-> t2)
     = (x, t1):foldArgs xs env t2
 foldArgs _ env _ = env
-
--- | Function that returns the difference between the types of two expressions that should return the same type.
-typesDifferErr :: Term -> Typ -> Term -> Typ -> String -> Either Err a
-typesDifferErr e1 t1 e2 t2 cont
-    = Left
-    $ Compiling
-    $ cont ++ ": the expression "
-           ++ show e1 ++ " with type "
-           ++ show t1 ++ " does not match "
-           ++ show e2 ++ " with type "
-           ++ show t2

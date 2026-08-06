@@ -39,6 +39,7 @@ data Term = Var         Identity
           deriving (Show, Eq)
 
 data DeclaredType = DVar Identity
+                  | DList DeclaredType
                   | DeclaredType ::-> DeclaredType
                   deriving (Show, Eq)
 

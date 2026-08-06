@@ -63,6 +63,8 @@ typFromDeclaredType (t1 ::-> t2)
     = typFromDeclaredType t1 :-> typFromDeclaredType t2
 typFromDeclaredType (DVar t)
     = typFromId t
+typFromDeclaredType (DList t)
+    = TList $ typFromDeclaredType t
 
 -- | Function that gives an unused name to an arbitrary type (used in typeOf).
 newTVarName :: StaticEnv -> Identity

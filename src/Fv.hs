@@ -25,6 +25,7 @@ isFv v (STGVar x)  = v == x
 isFv v (e1 ::@ e2) = isFv v e1 || isFv v e2
 isFv _ _           = False
 
+-- | Function that checks free variable occurrences in types.
 isFvTyp :: Typ -> Identity -> Bool
 isFvTyp (TVar a) b
     | a /= b    = False
