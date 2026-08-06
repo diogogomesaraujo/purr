@@ -4,6 +4,8 @@ import Control.Monad
 
 import Eval
 import Lexer
+import Typed
+import TypeOf
 import Parser
 import Unwind
 import Compile
@@ -24,21 +26,27 @@ replLoop :: IO ()
 replLoop = do
     send;
 
-    text <- getText
+    text    <- getText
 
-    prog <- pure
-            $ compileSTG
-            $ parse
-            $ alexScanTokens
-            $ text
+    prog    <- pure
+               $ typeTerm
+               $ parse
+               $ alexScanTokens
+               $ text
 
-    recv;
+    case typeOf [] prog of
+        Right (progTyp, _) -> do evaled <- pure
+                                           $ compileSTG prog
 
-    case prog of
-        Right p -> putStr $ Prelude.show $ eval $ unwind [p]
-        Left  e -> putStr $ Prelude.show e;
+                                 recv;
+                                 putStr $ Prelude.show progTyp ++ "\n";
 
-    newline;
+                                 recv;
+                                 _ <- case evaled of
+                                    Right p -> putStr $ Prelude.show $ eval $ unwind [p]
+                                    Left  e -> putStr $ Prelude.show e
+                                 newline
+        Left e -> putStr $ Prelude.show e
 
     replLoop
 

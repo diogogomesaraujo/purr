@@ -106,13 +106,22 @@ Multiplication : Multiplication '*' Cons { ((Prim (:*)) :@ $1) :@ $3 }
                | Cons                    { $1 }
 
 Cons :: { Term }
-Cons : Cons ':' Application   { ((Prim (:::)) :@ $1) :@ $3 }
-     | Application            { $1 }
+Cons : Cons ':' Op   { ((Prim (:::)) :@ $1) :@ $3 }
+     | Op            { $1 }
 
 Application :: { Term }
-Application : Application Atomic     { $1 :@ $2 }
-            | Application sym Atomic { ((Prim (Custom $2)) :@ $1) :@ $3 }
-            | Atomic                 { $1 }
+Application : Application Atomic { $1 :@ $2 }
+            | Atomic             { $1 }
+
+Op :: { Term }
+Op : Op sym Application { ((Prim (Custom $2)) :@ $1) :@ $3 }
+   | Application        { $1 }
+
+Atomic :: { Term }
+Atomic : AtomicConstant     { Const $1 }
+       | var                { Var $1 }
+       | List               { $1 }
+       | '(' Expression ')' { $2 }
 
 List :: { Term }
 List : '[' ListElements ']' { Const (CList $2) }
@@ -121,12 +130,6 @@ ListElements :: { [Term] }
 ListElements : {- empty -}                 { [] }
              | Expression                  { [$1] }
              | Expression ',' ListElements { $1:$3 }
-
-Atomic :: { Term }
-Atomic : AtomicConstant     { Const $1 }
-       | var                { Var $1 }
-       | List               { $1 }
-       | '(' Expression ')' { $2 }
 
 AtomicConstant :: { Constant }
 AtomicConstant : int   { CInt $1 }

@@ -24,7 +24,7 @@ type ::= int | bool | float | string | type -> type | [type]
 
 ### Examples
 
-A wrapper for the cons operation can be defined by the following expressions:
+A wrapper for the `cons` operation can be defined by the following expressions (semantically identical):
 
 ```ocaml
 let my_cons : x xs = x:xs in my_cons 3 [1,2]

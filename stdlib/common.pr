@@ -1,0 +1,11 @@
+--
+-- Standart Library for the *purr* functional programming language.
+--
+
+
+-- Operator that represents a pipe (inspired by OCaml) where the first
+-- argument is applied to the second (f x <=> x |> f).
+let (|>) : x y
+         : a -> (a -> b) -> b
+    = y x
+in

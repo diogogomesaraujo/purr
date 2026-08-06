@@ -23,12 +23,25 @@ type EitherTypSubst = Either Err (Typ, Subst)
 -- | Function that types all untyped let, let rec and lambda terms recursively.
 typeTerm :: Term -> Term
 typeTerm (Lambda xs e)
-    = TypedLambda xs (typeArgs xs []) e
+    = TypedLambda xs (typeArgs xs []) (typeTerm e)
 typeTerm (Let x xs e1 e2)
-    = TypedLet x xs (typeArgs xs []) e1 e2
+    = TypedLet x xs (typeArgs xs []) (typeTerm e1) (typeTerm e2)
 typeTerm (LetRec x xs e1 e2)
-    = TypedLetRec x xs (typeArgs xs []) e1 e2
-typeTerm t = t
+    = TypedLetRec x xs (typeArgs xs []) (typeTerm e1) (typeTerm e2)
+typeTerm (TypedLambda xs t e)
+    = TypedLambda xs t (typeTerm e)
+typeTerm (TypedLet x xs t e1 e2)
+    = TypedLet x xs t (typeTerm e1) (typeTerm e2)
+typeTerm (TypedLetRec x xs t e1 e2)
+    = TypedLetRec x xs t (typeTerm e1) (typeTerm e2)
+typeTerm (If e1 e2 e3)
+    = If (typeTerm e1) (typeTerm e2) (typeTerm e3)
+typeTerm (Fix e)
+    = Fix (typeTerm e)
+typeTerm (e1 :@ e2)
+    = typeTerm e1 :@ typeTerm e2
+typeTerm e = e
+
 
 -- | Function that gives an arbitrary type to the arguments of a let, let rec or lambda term.
 typeArgs :: [Identity] -> [Identity] -> DeclaredType
