@@ -134,9 +134,9 @@ And use a playground environment with:
 purr
 ```
 
-# References
+## References
 
 The study material I used to learn the concepts required to implement `purr` where:
 
 - Professor Mario Florido's lecture notes;
-- *Implementing lazy functional languages on stock hardware: the Spineless Tagless G-machine* - Simon Peyton Jones
+- *Implementing lazy functional languages on stock hardware: the Spineless Tagless G-machine* - Simon Peyton Jones.
