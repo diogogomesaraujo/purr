@@ -22,7 +22,7 @@ Much like any functional programming language, `purr` is strongly typed (at comp
 type ::= int | bool | float | string | type -> type | [type] 
 ```
 
-### Example 
+### Examples
 
 A wrapper for the cons operation can be defined by the following expressions:
 
@@ -36,52 +36,34 @@ let my_cons : x xs : a -> [a] -> [a] = x:xs in my_cons 3 [1,2]
 let my_cons : x xs : int -> [int] -> [int] = x:xs in my_cons 3 [1,2]
 ```
 
-## Language Features
+## Language
 
-- Boolean, ints and floats;
-- Comments (`-- ...`);
-- Conditionals (`if then else`, `==`, `!=`, `<`, `>`, `<=`, `>=`, `&&`, `||`);
-- Arithmetic expressions (`+`, `-`, `/`, `*`);
-- Lambda Functions (`\x . ...`);
-- Variable Declaration (`let x := ...`);
-- Recursive and Non-Recursive Functions (`let f : x = ... in ...`, `let rec f : x = ... in ...`);
-- Optional type declarations (let x : a = ... in ..., \x : a -> b . ...)
-- Custom Operators (`let (**) : x y = x * y in x ** y`)
-- Lists (`[...,...]`, `-...:[]`).
+The language consists of an extended lambda calculus and, as previously stated, has a syntax similar to ML-based languages like OCaml, SML and F#.
 
-## Getting Started
+### Syntax
+```
+const ::= int | bool | float | [const]
 
-### Prerequisites
+op    ::= == | != | < | <= | > | >= | && 
+             | || | + | - | / | * | :
 
-In order to run this project from source, you will need to have Haskell and `cabal` installed.
+var   ::= string | (custom_op)
 
-### Command-line Tool
-
-Before executing the program you have to compile the lexer and the parser with the following commands:
-```bash
-# compile the lexer
-alex src/Lexer.x
-
-# compile the parser
-happy src/Parser.y --ghc
+term  ::= const | term op term 
+                | let var := term in term 
+                | let var : [string] = term in term 
+                | let var : [string] : type = term in term
+                | let rec var := term in term 
+                | let rec var : [string] = term in term 
+                | let rec var : [string] : type = term in term
+                | \[string] . term
+                | \[string] : type . term
+                | if term then term else term
+                | term term
+                | term -- comment
 ```
 
-Then you have to install the command-line tool:
-```bash
-cabal install exe:purr
-```
-
-Then, you can execute programs written in files with the following command:
-```bash
-purr <file_path>
-```
-
-And use a playground environment with:
-```bash
-purr
-```
-
-## Code Examples
+### Examples
 
 There are several examples you can try in the [`examples`](./examples) folder such as:
 
@@ -119,3 +101,42 @@ in
 
 ascending 10
 ```
+
+## Getting Started
+
+### Prerequisites
+
+In order to run this project from source, you will need to have Haskell and `cabal` installed.
+
+### Command-line Tool
+
+Before executing the program you have to compile the lexer and the parser with the following commands:
+```bash
+# compile the lexer
+alex src/Lexer.x
+
+# compile the parser
+happy src/Parser.y --ghc
+```
+
+Then you have to install the command-line tool:
+```bash
+cabal install exe:purr
+```
+
+Then, you can execute programs written in files with the following command:
+```bash
+purr <file_path>
+```
+
+And use a playground environment with:
+```bash
+purr
+```
+
+# References
+
+The study material I used to learn the concepts required to implement `purr` where:
+
+- Professor Mario Florido's lecture notes;
+- *Implementing lazy functional languages on stock hardware: the Spineless Tagless G-machine* - Simon Peyton Jones
