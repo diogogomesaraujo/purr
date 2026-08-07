@@ -1,4 +1,5 @@
 module Ast where
+import Name
 
 type Identity = String
 
@@ -48,3 +49,8 @@ cons x y = (Var "cons" :@ x) :@ y
 
 nil :: Term
 nil = Var "nil"
+
+makeBalelasArgs :: Term -> [Identity] -> (Term, [Identity])
+makeBalelasArgs (Var _) ns
+    = let n = newName ns in (Var n, n:ns)
+makeBalelasArgs _ _ = undefined

@@ -34,19 +34,21 @@ replLoop = do
                $ alexScanTokens
                $ text
 
+    recv;
+
     case typeOf [] prog of
         Right (progTyp, _) -> do evaled <- pure
                                            $ compileSTG prog
 
-                                 recv;
-                                 putStr $ Prelude.show progTyp ++ "\n";
+                                 putStr $ Prelude.show progTyp;
+                                 newline;
 
                                  recv;
-                                 _ <- case evaled of
+                                 case evaled of
                                     Right p -> putStr $ Prelude.show $ eval $ unwind [p]
                                     Left  e -> putStr $ Prelude.show e
                                  newline
-        Left e -> putStr $ Prelude.show e
+        Left e -> putStr $ Prelude.show e ++ "\n"
 
     replLoop
 

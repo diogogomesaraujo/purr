@@ -51,22 +51,22 @@ typeOf env (Prim (:/) :@ e1)
     = typeOfArith "/" e1 env
 
 typeOf env (Prim (:==) :@ e1)
-    = typeOfComp "==" e1 env
+    = typeOfComp e1 env
 
 typeOf env (Prim (:!=) :@ e1)
-    = typeOfComp "!=" e1 env
+    = typeOfComp e1 env
 
 typeOf env (Prim (:<) :@ e1)
-    = typeOfComp "<" e1 env
+    = typeOfComp e1 env
 
 typeOf env (Prim (:<=) :@ e1)
-    = typeOfComp "<=" e1 env
+    = typeOfComp e1 env
 
 typeOf env (Prim (:>) :@ e1)
-    = typeOfComp ">" e1 env
+    = typeOfComp e1 env
 
 typeOf env (Prim (:>=) :@ e1)
-    = typeOfComp ">=" e1 env
+    = typeOfComp e1 env
 
 typeOf env (Prim (:&&) :@ e1)
     = typeOfProp "&&" e1 env
@@ -77,8 +77,8 @@ typeOf env (Prim (:||) :@ e1)
 typeOf env (Prim (:::) :@ e1)
     = do typeOfCons e1 env
 
-typeOf env (Prim (Custom p) :@ e1 :@ e2)
-    = do typeOfCustom p e1 e2 env
+typeOf env (Prim (Custom p))
+    = do typeOfCustom p env
 
 typeOf env (e1 :@ e2)
     = typeOfApp e1 e2 env
@@ -103,10 +103,10 @@ typeOfIf :: Term -> Term -> Term -> StaticEnv -> EitherTypSubst
 typeOfIf e1 e2 e3 env
     = do (t1', s1) <- typeOf env e1
          case unify t1' TBool s1 of
-            Right _ -> do (t2, s2) <- typeOf env e2
+            Right s -> do (t2, s2) <- typeOf env e2
                           (t3, s3) <- typeOf env e3
-                          case unify t2 t3 (s2 ++ s3) of
-                               Right s -> Right (apply s t2, s)
+                          case unify t2 t3 (s ++ s2 ++ s3) of
+                               Right s' -> Right (apply s t2, s')
                                _       -> Left
                                           $ Compiling
                                           $ "the type "
@@ -139,11 +139,18 @@ typeOfApp e1 e2 env
                                 ++ show e1 ++ ": "    ++ show t1
                                 ++ " does not match " ++ show e2
                                 ++ ": "    ++ show t2'
-       Left e            -> Left e
+       Right (TVar t, s) -> do (_, s2) <- typeOf env e2
+                               s'       <- pure $ s ++ s2
+                               t'       <- pure $ TVar $ newTVarName env
+                               case unify (TVar t) t' s' of
+                                    Right s'' -> Right (apply s'' t', s'')
+                                    Left e    -> Left e
        Right t           -> Left
                             $ Compiling
-                            $ "tried to apply an argument to the non-function term "
+                            $ "app: "
                                 ++ show t
+                                ++ "is an invalid type for the first argument of an application"
+       Left e            -> Left e
 
 -- | Function that checks the type of an let term.
 typeOfLet :: Identity -> [Identity] -> DeclaredType -> Term -> Term -> StaticEnv -> EitherTypSubst
@@ -176,21 +183,10 @@ typeOfLambda xs t e env
             _        -> typesDifferErr e t2 e t1 "lambda"
 
 -- | Function that checks the type of a comparison.
-typeOfComp :: String -> Term -> StaticEnv -> EitherTypSubst
-typeOfComp p e env
+typeOfComp :: Term -> StaticEnv -> EitherTypSubst
+typeOfComp e env
     = do (t, s) <- typeOf env e
-         case unify t TInt s of
-            Right s1 -> Right (TInt :-> TBool, s1)
-            _ -> case unify t TFloat s of
-                    Right s2 -> Right (TFloat :-> TBool, s2)
-                    _       -> case unify t TBool s of
-                                    Right s3 -> Right (TBool :-> TBool, s3)
-                                    _      -> Left
-                                              $ Compiling
-                                              $ p
-                                                ++ ": "
-                                                ++ "arguments must be either float or int or bool, not "
-                                                ++ show t
+         Right (t :-> TBool, s)
 
 -- | Function that checks the type of a propositional logic conditional.
 typeOfProp :: String -> Term -> StaticEnv -> EitherTypSubst
@@ -228,22 +224,11 @@ typeOfCons e env
          Right $ (apply s (TList t :-> TList t), s)
 
 -- | Function that checks the type of a cons operation.
-typeOfCustom :: Identity -> Term -> Term -> StaticEnv -> EitherTypSubst
-typeOfCustom p e1 e2 env
+typeOfCustom :: Identity -> StaticEnv -> EitherTypSubst
+typeOfCustom p env
     = case lookup p env of
-           Just t -> case t of
-                t1' :-> t2' :-> tr ->
-                    do (t1, s1) <- typeOf env e1
-                       case unify t1 t1' s1 of
-                            Right s1' ->
-                                do (t2, s2) <- typeOf env e2
-                                   case unify t2 t2' (s1' ++ s2) of
-                                        Right s2' -> Right (apply s2' tr, s2')
-                                        _         -> typesDifferErr e2 t2 e2 t2' p
-                            _         -> typesDifferErr e1 t1 e1 t1' p
-                _                          -> Left $ Compiling $ p ++ "needs to be a function with two arguments"
-           Nothing -> Left $ Compiling $ p ++ ": use of undeclaired operator"
-
+           Just t  -> Right (t, [])
+           Nothing -> Left $ Compiling $ p ++ ": not declared"
 
 -- | Function that returns the difference between the types of two expressions that should return the same type.
 typesDifferErr :: Term -> Typ -> Term -> Typ -> String -> Either Err a

@@ -5,7 +5,15 @@
 
 -- Operator that represents a pipe (inspired by OCaml) where the first
 -- argument is applied to the second (f x <=> x |> f).
-let (|>) : x y
-         : a -> (a -> b) -> b
-    = y x
+let (|>) : x f
+    = f x
 in
+
+-- Alternative operator for different (!=) (for OCaml lovers).
+let (<>) : x y
+    = x != y
+in
+
+
+-- temporary
+true

@@ -2,6 +2,7 @@ module Typed where
 
 import Ast
 import Err
+import Name
 import Data.List
 
 data Typ = TBool
@@ -20,39 +21,76 @@ type Subst = [(Typ, Typ)]
 
 type EitherTypSubst = Either Err (Typ, Subst)
 
--- | Function that types all untyped let, let rec and lambda terms recursively.
 typeTerm :: Term -> Term
-typeTerm (Lambda xs e)
-    = TypedLambda xs (typeArgs xs []) (typeTerm e)
-typeTerm (Let x xs e1 e2)
-    = TypedLet x xs (typeArgs xs []) (typeTerm e1) (typeTerm e2)
-typeTerm (LetRec x xs e1 e2)
-    = TypedLetRec x xs (typeArgs xs []) (typeTerm e1) (typeTerm e2)
-typeTerm (TypedLambda xs t e)
-    = TypedLambda xs t (typeTerm e)
-typeTerm (TypedLet x xs t e1 e2)
-    = TypedLet x xs t (typeTerm e1) (typeTerm e2)
-typeTerm (TypedLetRec x xs t e1 e2)
-    = TypedLetRec x xs t (typeTerm e1) (typeTerm e2)
-typeTerm (If e1 e2 e3)
-    = If (typeTerm e1) (typeTerm e2) (typeTerm e3)
-typeTerm (Fix e)
-    = Fix (typeTerm e)
-typeTerm (e1 :@ e2)
-    = typeTerm e1 :@ typeTerm e2
-typeTerm e = e
+typeTerm t
+    = let (t', _) = typeTerm' t [] in t'
 
+-- | Function that types all untyped let, let rec and lambda terms recursively.
+typeTerm' :: Term -> [Identity] -> (Term, [Identity])
+typeTerm' (Lambda xs e) ns
+    = let (tArgs, nArgs) = typeArgs xs ns
+          (t, ns')       = typeTerm' e nArgs in
+          (TypedLambda xs tArgs t, ns')   --problem is here! i need to see what names it gave!!!!
+typeTerm' (Let x xs e1 e2) ns
+    = let (tArgs, nArgs) = typeArgs xs ns
+          (t1, ns1)       = typeTerm' e1 nArgs
+          (t2, ns2)       = typeTerm' e2 ns1 in
+      (TypedLet x xs tArgs t1 t2, ns2)
+typeTerm' (LetRec x xs e1 e2) ns
+    = let (tArgs, nArgs) = typeArgs xs ns
+          (t1, ns1)       = typeTerm' e1 nArgs
+          (t2, ns2)       = typeTerm' e2 ns1 in
+      (TypedLetRec x xs tArgs t1 t2, ns2)
+typeTerm' (TypedLambda xs t e) ns
+    = let (te, ns') = typeTerm' e ns in
+      (TypedLambda xs t te, ns')
+typeTerm' (TypedLet x xs t e1 e2) ns
+    = let (t1, ns1)       = typeTerm' e1 ns
+          (t2, ns2)       = typeTerm' e2 ns1 in
+      (TypedLet x xs t t1 t2, ns2)
+typeTerm' (TypedLetRec x xs t e1 e2) ns
+    = let (t1, ns1)       = typeTerm' e1 ns
+          (t2, ns2)       = typeTerm' e2 ns1 in
+      (TypedLetRec x xs t t1 t2, ns2)
+typeTerm' (If e1 e2 e3) ns
+    = let (t1, ns1)       = typeTerm' e1 ns
+          (t2, ns2)       = typeTerm' e2 ns1
+          (t3, ns3)       = typeTerm' e3 ns2 in
+      (If t1 t2 t3, ns3)
+typeTerm' (Fix e) ns
+    = let (t', ns') = typeTerm' e ns in
+      (Fix t', ns')
+typeTerm' (e1 :@ e2) ns
+    = let (t1, ns1)       = typeTerm' e1 ns
+          (t2, ns2)       = typeTerm' e2 ns1 in
+      (t1 :@ t2, ns2)
+typeTerm' (Const (CList [])) ns
+    = (Const $ CList [], ns)
+typeTerm' (Const (CList es)) ns
+    = let (t, ns') = typeList es ns in
+      (Const $ CList t, ns')
+typeTerm' e ns = (e, ns)
+
+typeList :: [Term] -> [Identity] -> ([Term], [Identity])
+typeList (e:es) ns
+    = let (t, ns')  = typeTerm' e ns
+          (ts, nss) = typeList es ns' in
+      (t:ts, nss)
+typeList [] ns
+    = ([], ns)
 
 -- | Function that gives an arbitrary type to the arguments of a let, let rec or lambda term.
-typeArgs :: [Identity] -> [Identity] -> DeclaredType
-typeArgs [] _      = error "empty lambda"
+typeArgs :: [Identity] -> [Identity] -> (DeclaredType, [Identity])
+typeArgs [] ns
+    = let n = newName ns in (DVar $ n, n:ns)
 typeArgs [_] ns
     = let n1 = newName ns
           n2 = newName (n1:ns) in
-      DVar n1 ::-> DVar n2
+      (DVar n1 ::-> DVar n2, n1:n2:ns)
 typeArgs (_:xs') ns
-    = let name = newName ns in
-      DVar name ::-> typeArgs xs' (name:ns)
+    = let n         = newName ns
+          (n', ns') = typeArgs xs' (n:ns) in
+      (DVar n ::-> n', ns')
 
 -- | Function that gives the absolute type of a complex type (ex: a -> b becomes b).
 absTyp :: Typ -> Typ
@@ -82,7 +120,7 @@ typFromDeclaredType (DList t)
 -- | Function that gives an unused name to an arbitrary type (used in typeOf).
 newTVarName :: StaticEnv -> Identity
 newTVarName env
-    = findAvailableName $ combinations alphabet
+    = findAvailableName $ combinations alphabet \\ [""]
         where findAvailableName (x:xs)
                   = if all (\(_, t) -> x `notElem` varsOf t) env
                         then x
@@ -92,24 +130,3 @@ newTVarName env
               varsOf (t1 :-> t2) = nub $ varsOf t1 ++ varsOf t2
               varsOf (TList t)   = varsOf t
               varsOf _           = []
-
--- | Function that gives an unused name to an arbitrary type (used in typeTerm).s
-newName :: [Identity] -> Identity
-newName l
-    = findAvailableName $ combinations alphabet
-        where findAvailableName (x:xs)
-                  = if x `notElem` l
-                        then x
-                        else findAvailableName xs
-              findAvailableName _ = error "impossible"
-
--- | Function that gives all combinations of the elements in a list (percs of using Haskell xD).
-combinations :: [a] -> [[a]]
-combinations [] = [[]]
-combinations (x:xs)
-    =  combinations xs ++ map (x:)(combinations xs)
-
--- | Constant list of all letters in the alphabet.
-alphabet :: [Char]
-alphabet = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm'
-           , 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
