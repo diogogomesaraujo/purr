@@ -102,6 +102,10 @@ in
 ascending 10
 ```
 
+## Standard Library
+
+A set of predefined functions that are automatically compiled with every program. Check out the [implementation](./stdlib/common.pr).
+
 ## Getting Started
 
 ### Prerequisites

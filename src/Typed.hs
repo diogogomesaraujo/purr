@@ -30,7 +30,7 @@ typeTerm' :: Term -> [Identity] -> (Term, [Identity])
 typeTerm' (Lambda xs e) ns
     = let (tArgs, nArgs) = typeArgs xs ns
           (t, ns')       = typeTerm' e nArgs in
-          (TypedLambda xs tArgs t, ns')   --problem is here! i need to see what names it gave!!!!
+          (TypedLambda xs tArgs t, ns')
 typeTerm' (Let x xs e1 e2) ns
     = let (tArgs, nArgs) = typeArgs xs ns
           (t1, ns1)       = typeTerm' e1 nArgs
