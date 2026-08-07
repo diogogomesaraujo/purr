@@ -5,12 +5,12 @@
 
 -- Operator that represents a pipe (inspired by OCaml) where the first
 -- argument is applied to the second (f x <=> x |> f).
-let (|>) : x f
+let (|>) : x f : a -> (a -> b) -> b
     = f x
 in
 
 -- Alternative operator for different (!=) (for OCaml lovers).
-let (<>) : x y
+let (<>) : x y : a -> a -> a
     = x != y
 in
 
