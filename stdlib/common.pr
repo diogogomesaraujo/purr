@@ -10,10 +10,6 @@ let (|>) : x f : a -> (a -> b) -> b
 in
 
 -- Alternative operator for different (!=) (for OCaml lovers).
-let (<>) : x y : a -> a -> a
+let (<>) : x y : c -> c -> c
     = x != y
 in
-
-
--- temporary
-true

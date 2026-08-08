@@ -74,7 +74,9 @@ library
                       TypeOf,
                       Unify,
                       Debug,
-                      Name
+                      Name,
+                      Stdlib,
+                      Module
 
     -- Modules included in this library but not exported.
     -- other-modules:

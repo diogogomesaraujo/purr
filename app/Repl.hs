@@ -7,6 +7,7 @@ import Lexer
 import Typed
 import TypeOf
 import Parser
+import Stdlib
 import Unwind
 import Compile
 import Data.Text
@@ -28,11 +29,13 @@ replLoop = do
 
     text    <- getText
 
+    text'   <- withStd text
+
     prog    <- pure
                $ typeTerm
                $ parse
                $ alexScanTokens
-               $ text
+               $ text'
 
     recv;
 

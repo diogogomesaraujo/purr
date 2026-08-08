@@ -7,13 +7,15 @@ import TypeOf
 import Parser
 import Unwind
 import Compile
+import Stdlib (withStd)
 
 interpFile :: FilePath -> IO ()
-interpFile path = do file <- readFile path
-                     prog <- pure
-                            $ parse
-                            $ alexScanTokens
-                            $ file
+interpFile path = do file  <- readFile path
+                     file' <- withStd file
+                     prog  <- pure
+                             $ parse
+                             $ alexScanTokens
+                             $ file'
                      case typeOf [] $ typeTerm prog of
                         Right _ ->
                             case compileSTG prog of
