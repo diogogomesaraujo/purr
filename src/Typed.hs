@@ -130,3 +130,17 @@ newTVarName env
               varsOf (t1 :-> t2) = nub $ varsOf t1 ++ varsOf t2
               varsOf (TList t)   = varsOf t
               varsOf _           = []
+
+showTyp :: Typ -> String
+showTyp (TVar v)    = v
+showTyp TBool       = "bool"
+showTyp TFloat      = "float"
+showTyp TInt        = "int"
+showTyp (TList t)   = "[" ++ showTyp t ++ "]"
+showTyp (t1 :-> t2) = showTyp t1 ++ " -> " ++ showTyp t2
+
+showArgs :: Char -> (a -> String) -> [a] -> String
+showArgs sep f ts =
+    foldl (\acc t' ->
+                f t' ++ show sep ++ acc)
+    "" ts

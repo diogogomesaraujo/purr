@@ -1,5 +1,6 @@
 module File where
 
+import G
 import Eval
 import Lexer
 import Typed
@@ -19,6 +20,11 @@ interpFile path = do file  <- readFile path
                      case typeOf [] $ typeTerm prog of
                         Right _ ->
                             case compileSTG prog of
-                                Right p -> putStr $ (show $ eval $ unwind [p]) ++ "\n"
+                                Right p ->
+                                    case eval $ unwind [p] of
+                                        [c] -> case maybeShowConst c of
+                                                    Just cs -> putStr $ cs ++ "\n"
+                                                    _       -> putStr "couldn't reach a final value"
+                                        _       -> putStr "couldn't reach a final value"
                                 Left  e -> putStr $ show e
                         Left e  -> putStr $ show e
