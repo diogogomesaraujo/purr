@@ -26,13 +26,13 @@ type ::= int | bool | float | string | type -> type | [type]
 
 A wrapper for the `cons` operation can be defined by the following expressions (semantically identical):
 
-```ocaml
+```haskell
 let my_cons : x xs = x:xs in my_cons 3 [1,2]
 ```
-```ocaml
+```haskell
 let my_cons : x xs : a -> [a] -> [a] = x:xs in my_cons 3 [1,2]
 ```
-```ocaml
+```haskell
 let my_cons : x xs : int -> [int] -> [int] = x:xs in my_cons 3 [1,2]
 ```
 
@@ -68,7 +68,7 @@ term  ::= const | term op term
 There are several examples you can try in the [`examples`](./examples) folder such as:
 
 1. Increment
-```ocaml
+```haskell
 let incr :=
   fn x -> x + 1
 in map incr [0,1,2]
@@ -76,7 +76,7 @@ in map incr [0,1,2]
 
 2. Fibonnaci Sequence
 
-```ocaml
+```haskell
 let rec fib : x =
     if x < 2
         then 1
@@ -85,7 +85,7 @@ in fib 10
 ```
 
 3. Ascending List
-```ocaml
+```haskell
 let rec ascending_rec : size current_size list
     = if current_size > size
         then list
@@ -140,12 +140,17 @@ let rec map : f l : (g -> h) -> [g] -> [h] =
         else f (head l) : map f (tail l)
 in
 
--- Function that applies a given function `f` to all elements of `l` 
+-- Function that applies a given function `f` to all elements of `l`
 -- (leftwise) carrying an accumulator `acc`.
 let rec fold_left : f acc l : (j -> i -> j) -> j -> [i] -> j =
     if is_empty l
         then acc
         else fold_left f (f acc (head l)) (tail l)
+in
+
+-- Function that returns the number of elements in a list
+let len : l : [k] -> int =
+    fold_left (\acc x . acc + 1) 0 l
 in
 ```
 

@@ -40,3 +40,8 @@ let rec fold_left : f acc l : (j -> i -> j) -> j -> [i] -> j =
         then acc
         else fold_left f (f acc (head l)) (tail l)
 in
+
+-- Function that returns the number of elements in a list
+let len : l : [k] -> int =
+    fold_left (\acc x . acc + 1) 0 l
+in
