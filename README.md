@@ -142,7 +142,7 @@ in
 
 -- Function that applies a given function `f` to all elements of `l` 
 -- (leftwise) carrying an accumulator `acc`.
-let rec fold_left : f l acc : (j -> i -> j) -> j -> [i] -> j =
+let rec fold_left : f acc l : (j -> i -> j) -> j -> [i] -> j =
     if is_empty l
         then acc
         else fold_left f (f acc (head l)) (tail l)
