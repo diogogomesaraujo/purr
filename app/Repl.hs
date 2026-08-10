@@ -13,6 +13,7 @@ import Compile
 import Data.Text
 import GHC.IO.Handle (hFlush)
 import System.IO (stdout)
+import G (maybeShowConst)
 
 repl :: IO ()
 repl = do
@@ -39,7 +40,7 @@ replLoop = do
 
     recv;
 
-    case typeOf [] prog of
+    case typeOf predefinedEnv prog of
         Right (progTyp, _) -> do evaled <- pure
                                            $ compileSTG prog
 
@@ -48,7 +49,11 @@ replLoop = do
 
                                  recv;
                                  case evaled of
-                                    Right p -> putStr $ Prelude.show $ eval $ unwind [p]
+                                    Right p -> case eval $ unwind [p] of
+                                                    [c] -> case maybeShowConst c of
+                                                                Just cs -> putStr $ cs ++ "\n"
+                                                                _       -> putStr "couldn't reach a final value"
+                                                    _       -> putStr "couldn't reach a final value"
                                     Left  e -> putStr $ Prelude.show e
                                  newline
         Left e -> putStr $ Prelude.show e ++ "\n"

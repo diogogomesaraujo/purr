@@ -1,3 +1,5 @@
+{-# OPTIONS_GHC -Wno-x-partial #-}
+
 module Eval where
 
 import G
@@ -18,6 +20,16 @@ step (STGVar "cons":e1:e2:xs)
 
 step (STGVar "nil":xs)
     = (STGConst $ STGList []):xs
+
+step (STGVar "head":(STGConst (STGList l)):xs)
+    = head l:xs
+step (STGVar "tail":(STGConst (STGList l)):xs)
+    = (STGConst $ STGList $ tail l):xs
+
+step (STGVar "head":e:xs)
+    = eval $ [STGVar "head"] ++ (eval $ unwind [e]) ++ xs
+step (STGVar "tail":e:xs)
+    = eval $ [STGVar "tail"] ++ (eval $ unwind [e]) ++ xs
 
 step (ADD:(STGConst (STGInt x)):(STGConst (STGInt y)):xs)
     = (STGConst $ STGInt (x + y)):xs

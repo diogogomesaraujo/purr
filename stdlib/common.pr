@@ -5,15 +5,16 @@
 
 -- Operator that represents a pipe (inspired by OCaml) where the first
 -- argument is applied to the second (f x <=> x |> f).
-let (|>) : x f : a -> (a -> b) -> b
+let (|>) : x f : c -> (c -> d) -> d
     = f x
 in
 
 -- Alternative operator for different (!=) (for OCaml lovers).
-let (<>) : x y : c -> c -> c
+let (<>) : x y : e -> e -> e
     = x != y
 in
 
-let is_empty : l : [d] -> bool
+-- Function that checks if a list is empty.
+let is_empty : l : [f] -> bool
     = l == []
 in

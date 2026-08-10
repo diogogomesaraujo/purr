@@ -1,5 +1,2 @@
 TODO:
-- Build standard library.
-- Implement typing.
-- Pattern matching.
-- Polymorphic types.
+- 'a-z types are persistent but a-z types are not.

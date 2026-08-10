@@ -17,7 +17,7 @@ interpFile path = do file  <- readFile path
                              $ parse
                              $ alexScanTokens
                              $ file'
-                     case typeOf [] $ typeTerm prog of
+                     case typeOf predefinedEnv $ typeTerm prog of
                         Right _ ->
                             case compileSTG prog of
                                 Right p ->
