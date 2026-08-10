@@ -6,4 +6,4 @@ let incr :=
     \x . x + 1
 in
 
-incr 10
+map incr [0,1,2]

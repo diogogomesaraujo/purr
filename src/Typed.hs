@@ -22,7 +22,7 @@ type Subst = [(Typ, Typ)]
 type EitherTypSubst = Either Err (Typ, Subst)
 
 predefinedEnv :: StaticEnv
-predefinedEnv = [ ("head", TVar "a" :-> (TList $ TVar "a"))
+predefinedEnv = [ ("head", (TList $ TVar "a") :-> TVar "a")
                 , ("tail", (TList $ TVar "b") :-> (TList $ TVar "b")) ]
 
 typeTerm :: Term -> Term
