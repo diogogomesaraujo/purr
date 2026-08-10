@@ -152,6 +152,19 @@ in
 let len : l : [k] -> int =
     fold_left (\acc x . acc + 1) 0 l
 in
+
+-- Function that filters out elements of `l` that do not satisfy the
+-- condition `p`.
+let rec filter : p l : (l -> bool) -> [l] -> [l] =
+    if is_empty l
+        then []
+        else
+            let h := head l in
+            let t := tail l in
+            if p h
+                then h : filter p t
+                else filter p t
+in
 ```
 
 ## Getting Started
