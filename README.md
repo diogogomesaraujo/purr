@@ -71,7 +71,7 @@ There are several examples you can try in the [`examples`](./examples) folder su
 ```ocaml
 let incr :=
   fn x -> x + 1
-in incr 1
+in map incr [0,1,2]
 ```
 
 2. Fibonnaci Sequence
@@ -81,9 +81,7 @@ let rec fib : x =
     if x < 2
         then 1
         else (fib (x - 1)) + (fib (x - 2))
-in 
-
-fib 10
+in fib 10
 ```
 
 3. Ascending List
@@ -105,6 +103,48 @@ ascending 10
 ## Standard Library
 
 A set of predefined functions that are automatically compiled with every program. Check out the [implementation](./stdlib/common.pr).
+
+```haskell
+--
+-- Standard Library for the *purr* functional programming language.
+--
+
+--
+-- Operators
+--
+
+-- Operator that represents a pipe (inspired by OCaml) where the first
+-- argument is applied to the second (f x <=> x |> f).
+let (|>) : x f : c -> (c -> d) -> d
+    = f x
+in
+
+-- Alternative operator for different (!=) (for OCaml lovers).
+let (<>) : x y : e -> e -> e
+    = x != y
+in
+
+--
+-- Lists
+--
+
+-- Function that checks if a list is empty.
+let is_empty : l : [f] -> bool
+    = l == []
+in
+
+let rec map : f l : (g -> h) -> [g] -> [h] =
+    if is_empty l
+        then []
+        else f (head l) : map f (tail l)
+in
+
+let rec fold_left : f l acc : (j -> i -> j) -> j -> [i] -> j =
+    if is_empty l
+        then acc
+        else fold_left f (f acc (head l)) (tail l)
+in
+```
 
 ## Getting Started
 
