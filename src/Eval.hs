@@ -74,6 +74,19 @@ step (G.EQ:(STGConst (STGInt x)):(STGConst (STGInt y)):xs)
 step (DIFF:(STGConst (STGInt x)):(STGConst (STGInt y)):xs)
     = (STGConst $ STGBool (x /= y)):xs
 
+step (G.EQ:(STGConst (STGList (lx:lxs))):(STGConst (STGList (ly:lys))):xs)
+    = step $ AND:(G.EQ ::@ lx ::@ ly):(G.EQ ::@ STGConst (STGList lxs) ::@ STGConst (STGList lys)):xs
+step (DIFF:(STGConst (STGList (lx:lxs))):(STGConst (STGList (ly:lys))):xs)
+    = step $ AND:(DIFF ::@ lx ::@ ly):(DIFF ::@ STGConst (STGList lxs) ::@ STGConst (STGList lys)):xs
+step (DIFF:(STGConst (STGList [])):(STGConst (STGList [])):xs)
+    = STGConst (STGBool False):xs
+step (G.EQ:(STGConst (STGList [])):(STGConst (STGList [])):xs)
+    = STGConst (STGBool True):xs
+step (G.EQ:(STGConst (STGList _)):(STGConst (STGList _)):xs)
+    = STGConst (STGBool False):xs
+step (DIFF:(STGConst (STGList _)):(STGConst (STGList _)):xs)
+    = STGConst (STGBool True):xs
+
 step (G.EQ:e1:e2:xs)
     = eval $ [G.EQ] ++ (eval $ unwind [e1]) ++ (eval $ unwind [e2]) ++ xs
 step (DIFF:e1:e2:xs)

@@ -13,3 +13,7 @@ in
 let (<>) : x y : c -> c -> c
     = x != y
 in
+
+let is_empty : l : [d] -> bool
+    = l == []
+in
