@@ -78,10 +78,12 @@ in map incr [0,1,2]
 
 ```haskell
 let rec fib : x =
-    if x < 2
-        then 1
-        else (fib (x - 1)) + (fib (x - 2))
-in fib 10
+    if x == 1 || x == 0
+        then x
+        else fib (x - 1) + fib (x - 2)
+in
+
+fib 10
 ```
 
 3. Ascending List

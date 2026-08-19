@@ -8,7 +8,7 @@ import Token
 
 $digit      = [0-9]
 $large      = [A-Z]
-$small      = [a-z\_]
+$small      = [a-z]
 $alpha      = [$small $large]
 $ascsymbol  = [\!\#\$\%\&\*\+\.\/\<\=\>\?\@\^\|\-\~]
 
@@ -52,5 +52,5 @@ tokens :-
     ","                                   { \_ -> TokenComma }
     "."                                   { \_ -> TokenPoint }
     [\\]                                  { \_ -> TokenLambda }
-    [$alpha \_] [$alpha $digit \_ \']*    { \s -> TokenVar s }
+    [$alpha \_ \'] [$alpha $digit \_ \']*    { \s -> TokenVar s }
     $ascsymbol [$ascsymbol]*              { \s -> TokenSym s }
