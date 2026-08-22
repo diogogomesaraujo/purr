@@ -106,7 +106,7 @@ typeOfIf e1 e2 e3 env
             Right s -> do (t2, s2) <- typeOf env e2
                           (t3, s3) <- typeOf env e3
                           case unify t2 t3 (s ++ s2 ++ s3) of
-                               Right s' -> Right (apply s t2, s')
+                               Right s' -> Right (apply s' t2, s')
                                _       -> Left
                                           $ Compiling
                                           $ "the type "
