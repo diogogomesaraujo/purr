@@ -63,7 +63,7 @@ library
                       Parser,
                       Lexer,
                       Token,
-                      G,
+                      G, J,
                       Fv,
                       Err,
                       Compile,
@@ -71,8 +71,6 @@ library
                       Eval,
                       Unwind,
                       Typed,
-                      TypeOf,
-                      Unify,
                       Debug,
                       Name,
                       Stdlib,
@@ -85,7 +83,7 @@ library
     -- other-extensions:
 
     -- Other library packages from which modules are imported.
-    build-depends:    base ^>=4.22.0.0, array
+    build-depends:    base ^>=4.22.0.0, array, containers
 
     build-tool-depends:
         happy:happy >=2.2
