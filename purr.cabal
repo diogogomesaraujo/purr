@@ -64,7 +64,6 @@ library
                       Lexer,
                       Token,
                       G, J,
-                      Fv,
                       Err,
                       Compile,
                       Rewrite,
