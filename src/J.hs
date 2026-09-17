@@ -36,30 +36,24 @@ infer' j (e1 :@ e2) env
 infer' j (Lambda xs e) env
     = inferLambda j xs e env
 infer' j (TypedLambda xs dt e) env
-    = do (t', j')         <- inferLambda j xs e env
-         t                <- pure $ fromDeclaredType dt
-         (new_vars, j'')  <- pure $ newVars j' $ S.size (fvMono t)
-         t''              <- pure $ inst (S.fromList new_vars) (fvMono t, t)
-         j'''      <- unify j'' (t'', t')
-         pure (t, j''')
+    = do (t', j') <- inferLambda j xs e env
+         t        <- pure $ fromDeclaredType dt
+         j''      <- unify j' (t, t')
+         pure (t, j'')
 infer' j (Let x xs e1 e2) env
     = inferLet j x xs e1 e2 env
 infer' j (TypedLet x xs dt e1 e2) env
-    = do (t', j')         <- inferLet j x xs e1 e2 env
-         t                <- pure $ fromDeclaredType dt
-         (new_vars, j'')  <- pure $ newVars j' $ S.size (fvMono t)
-         t''              <- pure $ inst (S.fromList new_vars) (fvMono t, t)
-         j'''             <- unify j'' (t'', t')
-         pure (t'', j''')
+    = do (t', j') <- inferLet j x xs e1 e2 env
+         t        <- pure $ fromDeclaredType dt
+         j''      <- unify j' (t, t')
+         pure (t, j'')
 infer' j (LetRec x xs e1 e2) env
     = inferLetRec j x xs e1 e2 env
 infer' j (TypedLetRec x xs dt e1 e2) env
-    = do (t', j')         <- inferLetRec j x xs e1 e2 env
-         t                <- pure $ fromDeclaredType dt
-         (new_vars, j'')  <- pure $ newVars j' $ S.size (fvMono t)
-         t''              <- pure $ inst (S.fromList new_vars) (fvMono t, t)
-         j'''             <- unify j'' (t'', t')
-         pure (t'', j''')
+    = do (t', j') <- inferLetRec j x xs e1 e2 env
+         t        <- pure $ fromDeclaredType dt
+         j''      <- unify j' (t, t')
+         pure (t, j'')
 infer' j (If e1 e2 e3) env
     = inferIf j e1 e2 e3 env
 infer' j (Fix e) env

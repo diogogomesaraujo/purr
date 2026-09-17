@@ -30,7 +30,7 @@ in
 let rec map : f l =
     if is_empty l
         then []
-        else f (head l) : map f (tail l)
+        else f (head l) : tail l |> map f
 in
 
 -- Function that applies a given function `f` to all elements of `l`
@@ -38,7 +38,7 @@ in
 let rec fold_left : f acc l =
     if is_empty l
         then acc
-        else fold_left f (f acc (head l)) (tail l)
+        else fold_left f (head l |> f acc) (tail l)
 in
 
 -- Function that returns the number of elements in a list
