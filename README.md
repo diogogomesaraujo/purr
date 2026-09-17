@@ -36,8 +36,8 @@ let my_cons : x xs : a -> [a] -> [a] = x:xs in my_cons 3 [1,2]
 let my_cons : x xs : int -> [int] -> [int] = x:xs in my_cons 3 [1,2]
 ```
 
-Type polymorphism is also implemented, accepting expressions like the following, where
-`map` accepts functions with different types:
+Type polymorphism can be demonstrated by the following expression, where
+`map` receives functions with different types:
 
 ```haskell
 let incr_int :=
