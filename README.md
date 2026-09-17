@@ -11,7 +11,7 @@
 
 This repository contains a compiler and interpreter for a lazy evaluation programming language (such as Haskell) with ML-like syntax.
 
-It was built as a hobby project to retain concepts like lambda calculus, graph reduction, type inference and lazy evaluation learnt from the Fundamentals of Programming Languages and Implementation of Programming Languages courses of my Master's Degree in Computer Science at Universidade do Porto.
+It was built as a recreational project to retain concepts like lambda calculus, graph reduction, type inference and lazy evaluation learnt from the Fundamentals of Programming Languages and Implementation of Programming Languages courses of my Master's Degree in Computer Science at Universidade do Porto.
 
 ## Type System
 
