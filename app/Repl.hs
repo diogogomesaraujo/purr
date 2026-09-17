@@ -2,10 +2,9 @@ module Repl where
 import System.Console.Terminal.Size
 import Control.Monad
 
+import J
 import Eval
 import Lexer
-import Typed
-import TypeOf
 import Parser
 import Stdlib
 import Unwind
@@ -33,14 +32,13 @@ replLoop = do
     text'   <- withStd text
 
     prog    <- pure
-               $ typeTerm
                $ parse
                $ alexScanTokens
                $ text'
 
     recv;
 
-    case typeOf predefinedEnv prog of
+    case infer newJ prog of
         Right (progTyp, _) -> do evaled <- pure
                                            $ compileSTG prog
 

@@ -36,6 +36,25 @@ let my_cons : x xs : a -> [a] -> [a] = x:xs in my_cons 3 [1,2]
 let my_cons : x xs : int -> [int] -> [int] = x:xs in my_cons 3 [1,2]
 ```
 
+Type polymorphism is also implemented, accepting expressions like the following, where
+`map` accepts functions with different types:
+
+```haskell
+let incr_int :=
+    \x . x + 1
+in
+
+let incr_float :=
+    \x . x + 1.0
+in
+
+let _ := map incr_int [0,1,2] in
+
+map incr_float [0.0, 1.0, 2.0]
+```
+
+
+
 ## Language
 
 The language consists of an extended lambda calculus and, as previously stated, has a syntax similar to ML-based languages like OCaml, SML and F#.
@@ -117,12 +136,12 @@ A set of predefined functions that are automatically compiled with every program
 
 -- Operator that represents a pipe (inspired by OCaml) where the first
 -- argument is applied to the second (f x <=> x |> f).
-let (|>) : x f : c -> (c -> d) -> d
+let (|>) : x f
     = f x
 in
 
 -- Alternative operator for different (!=) (for OCaml lovers).
-let (<>) : x y : e -> e -> e
+let (<>) : x y
     = x != y
 in
 
@@ -131,12 +150,12 @@ in
 --
 
 -- Function that checks if a list is empty.
-let is_empty : l : [f] -> bool
+let is_empty : l
     = l == []
 in
 
 -- Function that applies a given function `f` to all elements of `l`.
-let rec map : f l : (g -> h) -> [g] -> [h] =
+let rec map : f l =
     if is_empty l
         then []
         else f (head l) : map f (tail l)
@@ -144,20 +163,20 @@ in
 
 -- Function that applies a given function `f` to all elements of `l`
 -- (leftwise) carrying an accumulator `acc`.
-let rec fold_left : f acc l : (j -> i -> j) -> j -> [i] -> j =
+let rec fold_left : f acc l =
     if is_empty l
         then acc
         else fold_left f (f acc (head l)) (tail l)
 in
 
 -- Function that returns the number of elements in a list
-let len : l : [k] -> int =
+let len : l =
     fold_left (\acc x . acc + 1) 0 l
 in
 
 -- Function that filters out elements of `l` that do not satisfy the
 -- condition `p`.
-let rec filter : p l : (l -> bool) -> [l] -> [l] =
+let rec filter : p l =
     if is_empty l
         then []
         else

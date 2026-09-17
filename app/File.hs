@@ -1,10 +1,9 @@
 module File where
 
 import G
+import J
 import Eval
 import Lexer
-import Typed
-import TypeOf
 import Parser
 import Unwind
 import Compile
@@ -17,7 +16,7 @@ interpFile path = do file  <- readFile path
                              $ parse
                              $ alexScanTokens
                              $ file'
-                     case typeOf predefinedEnv $ typeTerm prog of
+                     case infer newJ prog of
                         Right _ ->
                             case compileSTG prog of
                                 Right p ->

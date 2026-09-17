@@ -1,7 +1,7 @@
 module G where
 
 import Ast
-import Data.List (intercalate)
+import Data.List
 
 data STGConstant = STGInt   Int
                  | STGFloat Float
@@ -31,3 +31,16 @@ maybeShowConst (STGConst (STGList l))
     = (\xs -> "[" ++ intercalate "," xs ++ "]")
         <$> traverse maybeShowConst l
 maybeShowConst _ = Nothing
+
+-- | Function that returns the free variables in a term.
+fv :: Term -> [Identity]
+fv (Var x)               = [x]
+fv (Lambda xs e)         = (fv e) \\ xs
+fv (e1 :@ e2)            = fv e1 `union` fv e2
+fv _                     = []
+
+-- | Function that checks if there are any free variables in a term.
+isFv :: Identity -> Combinator -> Bool
+isFv v (STGVar x)  = v == x
+isFv v (e1 ::@ e2) = isFv v e1 || isFv v e2
+isFv _ _           = False

@@ -48,3 +48,19 @@ cons x y = (Var "cons" :@ x) :@ y
 
 nil :: Term
 nil = Var "nil"
+
+showOp :: Operation -> Identity
+showOp (:+)  = "+"
+showOp (:-)  = "-"
+showOp (:/)  = "/"
+showOp (:*)  = "*"
+showOp (:&&) = "&&"
+showOp (:||) = "||"
+showOp (:>)  = ">"
+showOp (:>=) = ">="
+showOp (:<)  = "<"
+showOp (:<=) = "<="
+showOp (:==) = "=="
+showOp (:!=) = "!="
+showOp (:::) = ":"
+showOp (Custom c) = c
