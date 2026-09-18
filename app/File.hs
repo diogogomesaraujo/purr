@@ -23,7 +23,7 @@ interpFile path = do file  <- readFile path
                                     case eval $ unwind [p] of
                                         [c] -> case maybeShowConst c of
                                                     Just cs -> putStr $ cs ++ "\n"
-                                                    _       -> putStr "couldn't reach a final value"
-                                        _       -> putStr "couldn't reach a final value"
-                                Left  e -> putStr $ show e
-                        Left e  -> putStr $ show e
+                                                    _       -> putStr "couldn't reach a final value \n"
+                                        _       -> putStr "couldn't reach a final value \n"
+                                Left  e -> putStr $ show e ++ "\n"
+                        Left e  -> putStr $ show e ++ "\n"

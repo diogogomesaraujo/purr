@@ -51,9 +51,9 @@ replLoop = do
                                     Right p -> case eval $ unwind [p] of
                                                     [c] -> case maybeShowConst c of
                                                                 Just cs -> putStr $ cs ++ "\n"
-                                                                _       -> putStr "couldn't reach a final value"
-                                                    _       -> putStr "couldn't reach a final value"
-                                    Left  e -> putStr $ Prelude.show e
+                                                                _       -> putStr "couldn't reach a final value \n"
+                                                    _       -> putStr "couldn't reach a final value \n"
+                                    Left  e -> putStr $ Prelude.show e ++ "\n"
                                  newline
         Left e -> putStr $ Prelude.show e ++ "\n"
 
