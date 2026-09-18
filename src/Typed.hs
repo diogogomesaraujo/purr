@@ -11,9 +11,31 @@ type AVar  = Identity
 data Mono = TVar   Identity
           | TConst Identity
           | TApp   AFunc [Mono]
-          deriving (Show, Eq)
+          deriving Eq
+
+instance Show Mono where
+    show (TVar v)   = v
+    show (TConst c) = c
+    show (TApp "->" (x:y:[]))
+        = show x ++ " -> " ++ show y
+    show (TApp "list" (x:[]))
+        = "[" ++ show x ++ "]"
+    show (TApp f xs) = show f
+                       ++ " "
+                       ++ show xs
 
 type Poly = (Set AVar, Mono)
+
+showPoly :: Poly -> String
+showPoly (sxs, t)
+    | not $ S.null sxs = let xs = S.toList sxs in
+                       "forall " ++ showXs xs
+                       ++ ". "   ++ show t
+    | otherwise = show t
+    where showXs (x:[]) = x
+          showXs [] = ""
+          showXs (x:xs')
+             = x ++ ", " ++ showXs xs'
 
 type Aliases = Map AVar Mono
 

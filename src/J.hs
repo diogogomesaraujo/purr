@@ -16,7 +16,15 @@ type J = (Ctr, Aliases)
 data UnifyErr = RecursiveType Identity Mono
                 | Impossible Mono Mono
                 | UnknownVar Identity
-                deriving Show
+
+instance Show (UnifyErr) where
+    show (RecursiveType i t) = i
+                                ++ " is has recursive type "
+                                ++ Prelude.show t
+    show (Impossible t1 t2)  = Prelude.show t1
+                                ++ " and " ++ Prelude.show t2
+                                ++ " are impossible to unify"
+    show (UnknownVar i)      = i ++ " is an unknown variable"
 
 type InferResult a = Either UnifyErr a
 
@@ -175,7 +183,7 @@ unify (ctr, aliases) (t1, t2)
 
 newVar :: J -> (Identity, J)
 newVar (ctr, aliases)
-    = ("_" ++ show ctr,
+    = ("_" ++ Prelude.show ctr,
         (ctr + 1, aliases))
 
 newVars :: J -> Int -> ([Identity], J)

@@ -13,6 +13,7 @@ import Data.Text
 import GHC.IO.Handle (hFlush)
 import System.IO (stdout)
 import G (maybeShowConst)
+import Typed (showPoly)
 
 repl :: IO ()
 repl = do
@@ -42,7 +43,7 @@ replLoop = do
         Right (progTyp, _) -> do evaled <- pure
                                            $ compileSTG prog
 
-                                 putStr $ Prelude.show progTyp;
+                                 putStr $ showPoly progTyp;
                                  newline;
 
                                  recv;
