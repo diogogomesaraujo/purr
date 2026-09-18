@@ -36,24 +36,15 @@ infer' j (e1 :@ e2) env
 infer' j (Lambda xs e) env
     = inferLambda j xs e env
 infer' j (TypedLambda xs dt e) env
-    = do (t', j') <- inferLambda j xs e env
-         t        <- pure $ fromDeclaredType dt
-         j''      <- unify j' (t, t')
-         pure (t, j'')
+    = inferTypedLambda j xs dt e env
 infer' j (Let x xs e1 e2) env
     = inferLet j x xs e1 e2 env
 infer' j (TypedLet x xs dt e1 e2) env
-    = do (t', j') <- inferLet j x xs e1 e2 env
-         t        <- pure $ fromDeclaredType dt
-         j''      <- unify j' (t, t')
-         pure (t, j'')
+    = inferTypedLet j x xs dt e1 e2 env
 infer' j (LetRec x xs e1 e2) env
     = inferLetRec j x xs e1 e2 env
 infer' j (TypedLetRec x xs dt e1 e2) env
-    = do (t', j') <- inferLetRec j x xs e1 e2 env
-         t        <- pure $ fromDeclaredType dt
-         j''      <- unify j' (t, t')
-         pure (t, j'')
+    = inferTypedLetRec j x xs dt e1 e2 env
 infer' j (If e1 e2 e3) env
     = inferIf j e1 e2 e3 env
 infer' j (Fix e) env
@@ -105,6 +96,13 @@ inferLambda j xs e env
                            ts
          pure $ (tvs, j'')
 
+inferTypedLambda :: J -> [Identity] -> DeclaredType -> Term -> Env -> InferResult (Mono, J)
+inferTypedLambda j xs dt e env
+    = do dt'       <- pure $ fromDeclaredType dt
+         (t, j')   <- inferLambda j xs e env
+         j''       <- unify j' (dt', t)
+         pure (t, j'')
+
 inferLet :: J -> Identity -> [Identity] -> Term -> Term -> Env -> InferResult (Mono, J)
 inferLet (ctr, aliases) x xs e1 e2 env
     = let e1' = Lambda xs e1 in
@@ -115,10 +113,27 @@ inferLet (ctr, aliases) x xs e1 e2 env
          env'   <- pure $ bind env x t'
          infer' j e2 env'
 
+inferTypedLet :: J -> Identity -> [Identity] -> DeclaredType -> Term -> Term -> Env -> InferResult (Mono, J)
+inferTypedLet (ctr, aliases) x xs dt e1 e2 env
+    = let e1' = Lambda xs e1 in
+      do (t, j) <- infer' (ctr, aliases) e1' env
+         dt'    <- pure $ fromDeclaredType dt
+         j'     <- unify j (t, dt')
+         t'     <- pure
+                   $ gen env
+                   $ canonicalize (snd j) t
+         env'   <- pure $ bind env x t'
+         infer' j' e2 env'
+
 inferLetRec :: J -> Identity -> [Identity] -> Term -> Term -> Env -> InferResult (Mono, J)
 inferLetRec j x xs e1 e2 env
     = let e1' = Fix $ Lambda (x:xs) e1 in
       inferLet j x [] e1' e2 env
+
+inferTypedLetRec :: J -> Identity -> [Identity] -> DeclaredType -> Term -> Term -> Env -> InferResult (Mono, J)
+inferTypedLetRec j x xs dt e1 e2 env
+    = let e1' = Fix $ Lambda (x:xs) e1 in
+      inferTypedLet j x [] dt e1' e2 env
 
 inferIf :: J -> Term -> Term -> Term -> Env -> InferResult (Mono, J)
 inferIf j e1 e2 e3 env

@@ -136,12 +136,12 @@ A set of predefined functions that are automatically compiled with every program
 
 -- Operator that represents a pipe (inspired by OCaml) where the first
 -- argument is applied to the second (f x <=> x |> f).
-let (|>) : x f
+let (|>) : x f : a -> (a -> b) -> b
     = f x
 in
 
 -- Alternative operator for different (!=) (for OCaml lovers).
-let (<>) : x y
+let (<>) : x y : a -> a -> bool
     = x != y
 in
 
@@ -150,12 +150,12 @@ in
 --
 
 -- Function that checks if a list is empty.
-let is_empty : l
+let is_empty : l : [a] -> bool
     = l == []
 in
 
 -- Function that applies a given function `f` to all elements of `l`.
-let rec map : f l =
+let rec map : f l : (a -> b) -> [a] -> [b] =
     if is_empty l
         then []
         else f (head l) : tail l |> map f
@@ -163,20 +163,20 @@ in
 
 -- Function that applies a given function `f` to all elements of `l`
 -- (leftwise) carrying an accumulator `acc`.
-let rec fold_left : f acc l =
+let rec fold_left : f acc l : (a -> b -> a) -> a -> [b] -> a =
     if is_empty l
         then acc
         else fold_left f (head l |> f acc) (tail l)
 in
 
 -- Function that returns the number of elements in a list
-let len : l =
+let len : l : [a] -> int =
     fold_left (\acc x . acc + 1) 0 l
 in
 
 -- Function that filters out elements of `l` that do not satisfy the
 -- condition `p`.
-let rec filter : p l =
+let rec filter : p l : (a -> bool) -> [a] -> [a] =
     if is_empty l
         then []
         else
