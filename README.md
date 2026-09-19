@@ -15,7 +15,7 @@ It was built as a recreational project to retain concepts like lambda calculus, 
 
 ## Type System
 
-Much like any functional programming language, `purr` is strongly typed (at compile-time) and uses the Hindley-Milner/Damas-Milner algorithm for inferring types without the programmer intervention.
+Much like any functional programming language, `purr` is strongly typed (at compile-time) and uses [Hindley-Damas-Milner algorithm J](https://en.wikipedia.org/wiki/Hindley%E2%80%93Milner_type_system#Algorithm_J) for inferring types without programmer intervention.
 
 ### Syntax
 ```
