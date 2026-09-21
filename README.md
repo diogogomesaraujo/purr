@@ -15,7 +15,7 @@ It was built as a recreational project to retain concepts like lambda calculus, 
 
 ## Type System
 
-Much like any functional programming language, `purr` is strongly typed (at compile-time) and uses the Hindley-Milner/Damas-Milner algorithm for inferring types without the programmer intervention.
+Much like any functional programming language, `purr` is strongly typed (at compile-time) and uses the Hindley-Milner/Damas-Milner algorithm for inferring types without programmer intervention.
 
 ### Syntax
 ```
@@ -40,11 +40,11 @@ Type polymorphism can be demonstrated by the following expression, where
 `map` receives functions with different types:
 
 ```haskell
-let incr_int :=
+let incr_int := -- int -> int
     \x . x + 1
 in
 
-let incr_float :=
+let incr_float := -- float -> float
     \x . x + 1.0
 in
 

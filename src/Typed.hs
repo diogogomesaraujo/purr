@@ -196,8 +196,8 @@ ttail :: Binding
 ttail = ("tail", (S.singleton idA, TApp "list" [ta] ---> TApp "list" [ta]))
 
 stdEnv :: Env
-stdEnv = [ tif, tfix, tunion, thead, ttail,
-           tandor "||", tandor "&&", tcompare "<"
-           , tcompare "<=", tcompare ">",  tcompare ">="
-           , tcompare "==" , tcompare "!=", tarith "+"
-           , tarith "-", tarith "*", tarith "/" ]
+stdEnv = [ tif, tfix, tunion, thead, ttail
+         , tandor "||", tandor "&&", tcompare "<"
+         , tcompare "<=", tcompare ">",  tcompare ">="
+         , tcompare "==" , tcompare "!=", tarith "+"
+         , tarith "-", tarith "*", tarith "/" ]
