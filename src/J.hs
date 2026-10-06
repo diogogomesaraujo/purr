@@ -5,6 +5,7 @@ import Typed
 import Data.Map as M
 import Data.List as L
 import Data.Set as S
+import Utils (Identity)
 import Control.Monad (foldM)
 
 type Ctr = Int

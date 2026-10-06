@@ -1,6 +1,6 @@
 module Ast where
 
-type Identity = String
+import Utils (Identity)
 
 data Constant = CInt   Int
               | CFloat Float

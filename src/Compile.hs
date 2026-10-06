@@ -1,8 +1,9 @@
 module Compile where
 
 import G
-import Ast
 import Err
+import Ast
+import Utils (Identity)
 
 -- | Function that compiles the purr language into an internal SKI combinatory logic.
 compileSTG :: Term ->  Either Err Combinator

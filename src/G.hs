@@ -2,6 +2,7 @@ module G where
 
 import Ast
 import Data.List
+import Utils (Identity)
 
 data STGConstant = STGInt   Int
                  | STGFloat Float

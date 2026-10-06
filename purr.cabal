@@ -73,7 +73,9 @@ library
                       Debug,
                       Name,
                       Stdlib,
-                      Module
+                      Module,
+                      STG,
+                      Utils
 
     -- Modules included in this library but not exported.
     -- other-modules:

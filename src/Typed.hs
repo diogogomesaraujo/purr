@@ -4,6 +4,7 @@ import Ast
 import Data.Set as S
 import Data.List as L
 import Data.Map as M
+import Utils (Identity)
 
 type AFunc = Identity
 type AVar  = Identity
