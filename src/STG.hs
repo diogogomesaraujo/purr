@@ -19,6 +19,11 @@ data Instruction = Unwind
                  | Mkap
                  | Slide      Int
                  | Alloc      Int
+                 | Update     Int
+                 | Eval
+                 | Cond Program Program
+                 | Add | Sub | Mul | Div
+                 | Eq | Diff | Lt | LtEq | Gt | GtEq
                  deriving (Show, Eq)
 
 type Program = [Instruction]
@@ -83,13 +88,42 @@ compileConst (CList _) _
     = undefined
 
 compileLambda = undefined
-compileAp = undefined
+
+compileAp :: Term -> Term -> CompilerEnv -> CompilerResult
+compileAp e1 e2 env
+    = do e1' <- compile e1 env
+         e2' <- compile e2 (argsOffset 1 env)
+         return $ e1' ++ e2' ++ [Mkap]
+
 compileIf = undefined
-compileLet = undefined
-compileLetRec = undefined
+
+compileLet :: Identity -> Term -> Term -> CompilerEnv -> CompilerResult
+compileLet x e1 e2 env
+    = do e1'  <- compile e1 env
+         env' <- return $ M.insert x 0 (argsOffset 1 env)
+         e2'  <- compile e2 env'
+         return $ e1'
+                  ++ e2'
+                  ++ [Slide 1]
+
+compileLetRec :: Identity -> Term -> Term -> CompilerEnv -> CompilerResult
+compileLetRec x e1 e2 env
+    = do e1'  <- compile e1 env
+         env' <- return $ M.insert x 0 (argsOffset 1 env)
+         e2'  <- compile e2 env'
+         return $ [Alloc 1]
+                  ++ e1'
+                  ++ [Update 0]
+                  ++ e2'
+                  ++ [Slide 1]
+
 compilePrim = undefined
 
 replaceArgs :: [Identity] -> Term -> Term
 replaceArgs [] e = e
 replaceArgs (x:xs) e
     = Lambda [x] $ replaceArgs xs e
+
+argsOffset :: Int -> CompilerEnv -> CompilerEnv
+argsOffset n env
+    = M.map (\m -> n + m) env
