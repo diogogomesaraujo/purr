@@ -20,10 +20,15 @@ data Instruction = Unwind
                  | Slide      Int
                  | Alloc      Int
                  | Update     Int
+                 | Pop        Int
                  | Eval
                  | Cond Program Program
                  | Add | Sub | Mul | Div
                  | Eq | Diff | Lt | LtEq | Gt | GtEq
+                 | Pack Int Int
+                 | CaseJump (Map Int Program)
+                 | Split Int
+                 | Print
                  deriving (Show, Eq)
 
 type Program = [Instruction]
@@ -33,6 +38,43 @@ type CompilerEnv = Map Identity Int
 type CompilerResult = Either Err Program
 
 type Compiler = Term -> CompilerEnv -> CompilerResult
+
+type Compiled = (Identity, Int, Program)
+
+type CompiledResult = Either Err Compiled
+
+initialCode :: Program
+initialCode = [PushGlobal "main", Eval]
+
+compiledPrims :: [Compiled]
+compiledPrims = [ compiledPrim "+" Add, compiledPrim "-" Sub
+                , compiledPrim "*" Mul, compiledPrim "/" Div
+                , compiledPrim "<" Lt, compiledPrim "<=" LtEq
+                , compiledPrim ">" Gt, compiledPrim ">=" GtEq
+                , compiledPrim "==" Eq, compiledPrim "!=" Diff
+                , compiledIf ] -- missing :, &&, ||
+
+compiledIf :: Compiled
+compiledIf = ("if", 3, [ Push 0, Eval, Cond [Push 1] [Push 2]
+                       , Update 3, Pop 3, Unwind])
+
+compiledPrim :: Identity -> Instruction -> Compiled
+compiledPrim prim inst
+    = (prim, 2, [ Push 1, Eval, Push 1, Eval,
+                  inst, Update 2, Pop 2, Unwind ])
+
+compileR :: Compiler
+compileR e env
+    = do compiled <- compile e env
+         return $ compiled
+                  ++ [ Slide (M.size env + 1)
+                     , Unwind ]
+
+compileSc :: (Identity, [Identity], Term) -> CompiledResult
+compileSc (name, env, body)
+    = do compiled <- compileR body (enum env)
+         return $ (name, length env, compiled)
+            where enum e = M.fromList $ zip e [0..]
 
 compile :: Compiler
 compile (Var v) env
@@ -93,7 +135,9 @@ compileAp :: Term -> Term -> CompilerEnv -> CompilerResult
 compileAp e1 e2 env
     = do e1' <- compile e1 env
          e2' <- compile e2 (argsOffset 1 env)
-         return $ e1' ++ e2' ++ [Mkap]
+         return $ e1'
+                  ++ e2'
+                  ++ [Mkap]
 
 compileIf = undefined
 
