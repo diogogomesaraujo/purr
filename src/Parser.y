@@ -1,6 +1,7 @@
 {
 module Parser where
 import Ast
+import Utils
 import Token
 import Err
 }

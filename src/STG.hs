@@ -4,7 +4,7 @@ module STG where
 
 import Utils
 import Ast
-import Err (Err)
+import Err (Err (Compiling))
 import Data.Map as M
 
 data IConstant = IInt     Int
@@ -97,10 +97,10 @@ compile (LetRec x xs e1 e2) env
     = compileLetRec x (replaceArgs xs e1) e2 env
 compile (TypedLetRec x xs _ e1 e2) env
     = compileLetRec x (replaceArgs xs e1) e2 env
-compile (Prim p) env
-    = compilePrim p env
-compile _ _
-    = undefined
+compile (Prim p) _
+    = compilePrim p
+compile (Fix _) _
+    = Left $ Compiling "shouldn't happen"
 
 compileVar :: Identity -> CompilerEnv -> CompilerResult
 compileVar v env
@@ -126,10 +126,10 @@ compileConst (CBool b) _
       $ return
       $ PushConst
       $ IBool b
-compileConst (CList _) _
+compileConst (CList _) _ -- TODO
     = undefined
 
-compileLambda = undefined
+compileLambda = undefined -- TODO
 
 compileAp :: Term -> Term -> CompilerEnv -> CompilerResult
 compileAp e1 e2 env
@@ -139,7 +139,12 @@ compileAp e1 e2 env
                   ++ e2'
                   ++ [Mkap]
 
-compileIf = undefined
+compileIf :: Term -> Term -> Term -> CompilerEnv -> CompilerResult
+compileIf e1 e2 e3 env
+    = do e1' <- compile e1 env
+         e2' <- compile e2 env
+         e3' <- compile e3 env
+         return $ e1' ++ [Eval, Cond e2' e3']
 
 compileLet :: Identity -> Term -> Term -> CompilerEnv -> CompilerResult
 compileLet x e1 e2 env
@@ -152,8 +157,8 @@ compileLet x e1 e2 env
 
 compileLetRec :: Identity -> Term -> Term -> CompilerEnv -> CompilerResult
 compileLetRec x e1 e2 env
-    = do e1'  <- compile e1 env
-         env' <- return $ M.insert x 0 (argsOffset 1 env)
+    = do env' <- return $ M.insert x 0 (argsOffset 1 env)
+         e1'  <- compile e1 env'
          e2'  <- compile e2 env'
          return $ [Alloc 1]
                   ++ e1'
@@ -161,7 +166,8 @@ compileLetRec x e1 e2 env
                   ++ e2'
                   ++ [Slide 1]
 
-compilePrim = undefined
+compilePrim :: Operation -> CompilerResult
+compilePrim p = return [PushGlobal $ showOp p]
 
 replaceArgs :: [Identity] -> Term -> Term
 replaceArgs [] e = e

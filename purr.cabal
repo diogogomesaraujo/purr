@@ -60,21 +60,17 @@ library
 
     -- Modules exported by the library.
     exposed-modules:  Ast,
-                      Parser,
-                      Lexer,
-                      Token,
-                      G, J,
-                      Err,
-                      Compile,
-                      Rewrite,
-                      Eval,
-                      Unwind,
-                      Typed,
                       Debug,
-                      Name,
-                      Stdlib,
+                      Err,
+                      J,
+                      Lexer,
                       Module,
+                      Name,
+                      Parser,
+                      Stdlib,
                       STG,
+                      Token,
+                      Typed,
                       Utils
 
     -- Modules included in this library but not exported.
@@ -103,7 +99,7 @@ executable purr
     main-is:          Main.hs
 
     -- Modules included in this executable, other than Main.
-    other-modules: File, Args, Repl
+    other-modules:
 
     -- LANGUAGE extensions used by modules in this package.
     -- other-extensions:
