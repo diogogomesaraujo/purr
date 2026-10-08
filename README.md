@@ -1,6 +1,9 @@
 <br />
 <div align="center">
     <img src="./assets/purr.svg" alt="purr" style="width: 200px;"/>
+    <h3 align="center">
+     purr
+  </h3>
   <p align="center">
       A *purr*ely functional programming language.
   </p>
