@@ -25,9 +25,8 @@ data Instruction = Unwind
                  | Cond Program Program
                  | Add | Sub | Mul | Div
                  | Eq | Diff | Lt | LtEq | Gt | GtEq
-                 | Pack Int Int
-                 | CaseJump (Map Int Program)
-                 | Split Int
+                 | And | Or
+                 | Cons | Nil
                  | Print
                  deriving (Show, Eq)
 
@@ -35,13 +34,15 @@ type Program = [Instruction]
 
 type CompilerEnv = Map Identity Int
 
-type CompilerResult = Either Err Program
+type CompiledSuperCombinators = [Compiled]
 
-type Compiler = Term -> CompilerEnv -> CompilerResult
+type CompilerResult = Either Err (Program, CompiledSuperCombinators, Int)
+
+type Compiler = Term -> CompilerEnv -> Int -> CompilerResult
 
 type Compiled = (Identity, Int, Program)
 
-type CompiledResult = Either Err Compiled
+type CompiledResult = Either Err (Compiled, CompiledSuperCombinators, Int)
 
 initialCode :: Program
 initialCode = [PushGlobal "main", Eval]
@@ -64,110 +65,118 @@ compiledPrim prim inst
                   inst, Update 2, Pop 2, Unwind ])
 
 compileR :: Compiler
-compileR e env
-    = do compiled <- compile e env
-         return $ compiled
+compileR e env i
+    = do (compiled, cs, i') <- compile e env i
+         return $ (compiled
                   ++ [ Slide (M.size env + 1)
-                     , Unwind ]
+                     , Unwind ], cs, i')
 
-compileSc :: (Identity, [Identity], Term) -> CompiledResult
-compileSc (name, env, body)
-    = do compiled <- compileR body (enum env)
-         return $ (name, length env, compiled)
+compileSc :: Int -> (Identity, [Identity], Term) -> CompiledResult
+compileSc i (name, env, body)
+    = do (compiled, cs, i') <- compileR body (enum env) i
+         return $ ((name, length env, compiled), cs, i')
             where enum e = M.fromList $ zip e [0..]
 
 compile :: Compiler
-compile (Var v) env
-    = compileVar v env
-compile (Const c) env
-    = compileConst c env
-compile (Lambda xs e) env
-    = compileLambda xs e env
-compile (TypedLambda xs _ e) env
-    = compileLambda xs e env
-compile (e1 :@ e2) env
-    = compileAp e1 e2 env
-compile (If e1 e2 e3) env
-    = compileIf e1 e2 e3 env
-compile (Let x xs e1 e2) env
-    = compileLet x (replaceArgs xs e1) e2 env
-compile (TypedLet x xs _ e1 e2) env
-    = compileLet x (replaceArgs xs e1) e2 env
-compile (LetRec x xs e1 e2) env
-    = compileLetRec x (replaceArgs xs e1) e2 env
-compile (TypedLetRec x xs _ e1 e2) env
-    = compileLetRec x (replaceArgs xs e1) e2 env
-compile (Prim p) _
-    = compilePrim p
-compile (Fix _) _
+compile (Var v) env i
+    = compileVar v env i
+compile (Const c) env i
+    = compileConst c env i
+compile (Lambda xs e) env i
+    = compileLambda xs e env i
+compile (TypedLambda xs _ e) env i
+    = compileLambda xs e env i
+compile (e1 :@ e2) env i
+    = compileAp e1 e2 env i
+compile (If e1 e2 e3) env i
+    = compileIf e1 e2 e3 env i
+compile (Let x xs e1 e2) env i
+    = compileLet x (replaceArgs xs e1) e2 env i
+compile (TypedLet x xs _ e1 e2) env i
+    = compileLet x (replaceArgs xs e1) e2 env i
+compile (LetRec x xs e1 e2) env i
+    = compileLetRec x (replaceArgs xs e1) e2 env i
+compile (TypedLetRec x xs _ e1 e2) env i
+    = compileLetRec x (replaceArgs xs e1) e2 env i
+compile (Prim p) _ i
+    = compilePrim p i
+compile (Fix _) _ _
     = Left $ Compiling "shouldn't happen"
 
-compileVar :: Identity -> CompilerEnv -> CompilerResult
-compileVar v env
-    = return
-      $ return
-      $ case M.lookup v env of
-             Just n  -> Push n
-             Nothing -> PushGlobal v
+compileVar :: Identity -> CompilerEnv -> Int -> CompilerResult
+compileVar v env i
+    = let res = case M.lookup v env of
+                    Just n  -> Push n
+                    Nothing -> PushGlobal v in
+      return ([res], [], i)
 
-compileConst :: Constant -> CompilerEnv -> CompilerResult
-compileConst (CInt i) _
+compileConst :: Constant -> CompilerEnv -> Int -> CompilerResult
+compileConst (CInt i) _ i'
     = return
-      $ return
-      $ PushConst
-      $ IInt i
-compileConst (CFloat f) _
+      ([PushConst
+          $ IInt i], [], i')
+compileConst (CFloat f) _ i
     = return
-      $ return
-      $ PushConst
-      $ IFloat f
-compileConst (CBool b) _
+      ([PushConst
+          $ IFloat f], [], i)
+compileConst (CBool b) _ i
     = return
-      $ return
-      $ PushConst
-      $ IBool b
-compileConst (CList _) _ -- TODO
-    = undefined
+      ([PushConst
+          $ IBool b], [], i)
+compileConst (CList l) env i-- TODO
+    = compileList l env i
 
-compileLambda = undefined -- TODO
+compileList :: [Term] -> CompilerEnv -> Int -> CompilerResult
+compileList [] _ i
+    = return ([Nil], [], i)
+compileList (x:xs) env i
+    = do (x', x_cs, i_x)    <- compile x env i
+         (xs', xs_cs, i_xs) <- compileList xs env i_x
+         return $ (x' ++ xs' ++ [Cons], x_cs ++ xs_cs, i_xs)
 
-compileAp :: Term -> Term -> CompilerEnv -> CompilerResult
-compileAp e1 e2 env
-    = do e1' <- compile e1 env
-         e2' <- compile e2 (argsOffset 1 env)
-         return $ e1'
+compileLambda :: [Identity] -> Term -> CompilerEnv -> Int -> CompilerResult
+compileLambda xs e _ i
+    = let (name, i')    = runFreshVariable lambdaFreshVariable i in
+      do  (sc, cs, i'') <- compileSc i' (name, xs, e)
+          return ([PushGlobal name], sc:cs, i'')
+
+compileAp :: Term -> Term -> CompilerEnv -> Int -> CompilerResult
+compileAp e1 e2 env i
+    = do (e1', cs1, i1) <- compile e1 env i
+         (e2', cs2, i2) <- compile e2 (argsOffset 1 env) i1
+         return $ (e1'
                   ++ e2'
-                  ++ [Mkap]
+                  ++ [Mkap], cs1 ++ cs2, i2)
 
-compileIf :: Term -> Term -> Term -> CompilerEnv -> CompilerResult
-compileIf e1 e2 e3 env
-    = do e1' <- compile e1 env
-         e2' <- compile e2 env
-         e3' <- compile e3 env
-         return $ e1' ++ [Eval, Cond e2' e3']
+compileIf :: Term -> Term -> Term -> CompilerEnv -> Int -> CompilerResult
+compileIf e1 e2 e3 env i
+    = do (e1', cs1, i1) <- compile e1 env i
+         (e2', cs2, i2) <- compile e2 env i1
+         (e3', cs3, i3) <- compile e3 env i2
+         return $ (e1' ++ [Eval, Cond e2' e3'], cs1 ++ cs2 ++ cs3, i3)
 
-compileLet :: Identity -> Term -> Term -> CompilerEnv -> CompilerResult
-compileLet x e1 e2 env
-    = do e1'  <- compile e1 env
-         env' <- return $ M.insert x 0 (argsOffset 1 env)
-         e2'  <- compile e2 env'
-         return $ e1'
+compileLet :: Identity -> Term -> Term -> CompilerEnv -> Int -> CompilerResult
+compileLet x e1 e2 env i
+    = do (e1', cs1, i1)  <- compile e1 env i
+         env'            <- return $ M.insert x 0 (argsOffset 1 env)
+         (e2', cs2, i2)  <- compile e2 env' i1
+         return $ (e1'
                   ++ e2'
-                  ++ [Slide 1]
+                  ++ [Slide 1], cs1 ++ cs2, i2)
 
-compileLetRec :: Identity -> Term -> Term -> CompilerEnv -> CompilerResult
-compileLetRec x e1 e2 env
-    = do env' <- return $ M.insert x 0 (argsOffset 1 env)
-         e1'  <- compile e1 env'
-         e2'  <- compile e2 env'
-         return $ [Alloc 1]
+compileLetRec :: Identity -> Term -> Term -> CompilerEnv -> Int -> CompilerResult
+compileLetRec x e1 e2 env i
+    = do env'        <- return $ M.insert x 0 (argsOffset 1 env)
+         (e1', cs1, i1)  <- compile e1 env' i
+         (e2', cs2, i2)  <- compile e2 env' i1
+         return $ ([Alloc 1]
                   ++ e1'
                   ++ [Update 0]
                   ++ e2'
-                  ++ [Slide 1]
+                  ++ [Slide 1], cs1 ++ cs2, i2)
 
-compilePrim :: Operation -> CompilerResult
-compilePrim p = return [PushGlobal $ showOp p]
+compilePrim :: Operation -> Int -> CompilerResult
+compilePrim p i = return ([PushGlobal $ showOp p], [], i)
 
 replaceArgs :: [Identity] -> Term -> Term
 replaceArgs [] e = e
