@@ -12,9 +12,13 @@
 <!-- ABOUT THE PROJECT -->
 ## About
 
-This repository contains a compiler and interpreter for a lazy evaluation programming language (such as Haskell) with ML-like syntax.
+This repository contains a compiler and interpreter for a lazy-evaluated programming language, such as Haskell, but with the charm of OCaml's syntax.
 
-It was built as a recreational project to retain concepts like lambda calculus, graph reduction, type inference and lazy evaluation learnt from the Fundamentals of Programming Languages and Implementation of Programming Languages courses of my Master's Degree in Computer Science at Universidade do Porto.
+It is a recreational project built as a way to retain concepts like lambda calculus, graph reduction, type inference and lazy evaluation learnt from the Fundamentals and Implementation of Programming Languages courses of my Master's Degree in CS at FCUP and further explore PL theory and compiler design.
+
+### What about Dobby?
+
+Dobby is purr's mascot and is known for being a scaredy-cat that is afraid of poorly typed programs and only purrs when the code compiles successfully. Over time, Dobby has grown even more fearful, worrying about the type system and compiler correctness as well, therefore, in the future, both will be formally verified in Rocq.
 
 ## Type System
 
