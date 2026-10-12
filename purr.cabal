@@ -63,17 +63,13 @@ library
                       Parser,
                       Lexer,
                       Token,
-                      G, J,
+                      J,
                       Err,
-                      Compile,
-                      Rewrite,
-                      Eval,
-                      Unwind,
                       Typed,
-                      Debug,
                       Name,
                       Stdlib,
-                      Module
+                      Module,
+                      Eval
 
     -- Modules included in this library but not exported.
     -- other-modules:

@@ -7,12 +7,9 @@ import Eval
 import Lexer
 import Parser
 import Stdlib
-import Unwind
-import Compile
 import Data.Text
 import GHC.IO.Handle (hFlush)
 import System.IO (stdout)
-import G (maybeShowConst)
 import Typed (showPoly)
 
 repl :: IO ()
@@ -41,18 +38,14 @@ replLoop = do
 
     case infer newJ prog of
         Right (progTyp, _) -> do evaled <- pure
-                                           $ compileSTG prog
+                                           $ eval prog
 
                                  putStr $ showPoly progTyp;
                                  newline;
 
                                  recv;
                                  case evaled of
-                                    Right p -> case eval $ unwind [p] of
-                                                    [c] -> case maybeShowConst c of
-                                                                Just cs -> putStr $ cs ++ "\n"
-                                                                _       -> putStr "couldn't reach a final value \n"
-                                                    _       -> putStr "couldn't reach a final value \n"
+                                    Right v -> putStr $ showValue v ++ "\n"
                                     Left  e -> putStr $ Prelude.show e ++ "\n"
                                  newline
         Left e -> putStr $ Prelude.show e ++ "\n"
