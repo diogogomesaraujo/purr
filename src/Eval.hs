@@ -6,15 +6,7 @@ import qualified J
 import qualified Typed
 import Text.Printf (printf)
 
-data Value = VInt Int
-           | VFloat Float
-           | VBool Bool
-           | VList [Value]
-           | VClosure [Identity] Term
-
 type EvalResult = Either Err Term
-
-type ValueResult = Either Err Value
 
 eval :: Term -> ValueResult
 eval e = case eval' e of
@@ -69,7 +61,7 @@ eval' (Prim (:::) :@ e1 :@ e2)
     = do e2' <- eval' e2
          return $ (Prim (:::) :@ e1 :@ e2')
 eval' (Prim p :@ Const c1 :@ Const c2)
-    = evalPrim p c1 c2
+    = evalPrim' p c1 c2
 eval' (Prim p :@ (Const c) :@ e2)
     = do e2' <- eval' e2
          return $ Prim p :@ Const c :@ e2'
@@ -95,84 +87,84 @@ eval' (e1 :@ e2)
          return $ e1' :@ e2
 eval' _ = Left $ Evaluating "couldn't reduce the term further"
 
-evalPrim :: Operation -> Constant -> Constant -> EvalResult
-evalPrim (:+) (CInt i1) (CInt i2)
+evalPrim' :: Operation -> Constant -> Constant -> EvalResult
+evalPrim' (:+) (CInt i1) (CInt i2)
     = return $ Const $ CInt $ i1 + i2
-evalPrim (:+) (CFloat f1) (CFloat f2)
+evalPrim' (:+) (CFloat f1) (CFloat f2)
     = return $ Const $ CFloat $ f1 + f2
-evalPrim (:-) (CInt i1) (CInt i2)
+evalPrim' (:-) (CInt i1) (CInt i2)
     = return $ Const $ CInt $ i1 - i2
-evalPrim (:-) (CFloat f1) (CFloat f2)
+evalPrim' (:-) (CFloat f1) (CFloat f2)
     = return $ Const $ CFloat $ f1 - f2
-evalPrim (:*) (CInt i1) (CInt i2)
+evalPrim' (:*) (CInt i1) (CInt i2)
     = return $ Const $ CInt $ i1 - i2
-evalPrim (:*) (CFloat f1) (CFloat f2)
+evalPrim' (:*) (CFloat f1) (CFloat f2)
     = return $ Const $ CFloat $ f1 - f2
-evalPrim (:/) (CInt _) (CInt 0)
+evalPrim' (:/) (CInt _) (CInt 0)
     = Left $ Evaluating "division by zero"
-evalPrim (:/) (CFloat _) (CFloat 0.0)
+evalPrim' (:/) (CFloat _) (CFloat 0.0)
     = Left $ Evaluating "division by zero"
-evalPrim (:/) (CInt i1) (CInt i2)
+evalPrim' (:/) (CInt i1) (CInt i2)
     = return $ Const $ CInt $ i1 `div` i2
-evalPrim (:/) (CFloat f1) (CFloat f2)
+evalPrim' (:/) (CFloat f1) (CFloat f2)
     = return $ Const $ CFloat $ f1 / f2
-evalPrim (:>) (CInt i1) (CInt i2)
+evalPrim' (:>) (CInt i1) (CInt i2)
     = return $ Const $ CBool $ i1 > i2
-evalPrim (:>) (CFloat f1) (CFloat f2)
+evalPrim' (:>) (CFloat f1) (CFloat f2)
     = return $ Const $ CBool $ f1 > f2
-evalPrim (:<) (CInt i1) (CInt i2)
+evalPrim' (:<) (CInt i1) (CInt i2)
     = return $ Const $ CBool $ i1 < i2
-evalPrim (:<) (CFloat f1) (CFloat f2)
+evalPrim' (:<) (CFloat f1) (CFloat f2)
     = return $ Const $ CBool $ f1 < f2
-evalPrim (:>=) (CInt i1) (CInt i2)
+evalPrim' (:>=) (CInt i1) (CInt i2)
     = return $ Const $ CBool $ i1 >= i2
-evalPrim (:>=) (CFloat f1) (CFloat f2)
+evalPrim' (:>=) (CFloat f1) (CFloat f2)
     = return $ Const $ CBool $ f1 >= f2
-evalPrim (:<=) (CInt i1) (CInt i2)
+evalPrim' (:<=) (CInt i1) (CInt i2)
     = return $ Const $ CBool $ i1 <= i2
-evalPrim (:<=) (CFloat f1) (CFloat f2)
+evalPrim' (:<=) (CFloat f1) (CFloat f2)
     = return $ Const $ CBool $ f1 <= f2
-evalPrim (:==) (CInt i1) (CInt i2)
+evalPrim' (:==) (CInt i1) (CInt i2)
     = return $ Const $ CBool $ i1 == i2
-evalPrim (:==) (CFloat f1) (CFloat f2)
+evalPrim' (:==) (CFloat f1) (CFloat f2)
     = return $ Const $ CBool $ f1 == f2
-evalPrim (:==) (CBool b1) (CBool b2)
+evalPrim' (:==) (CBool b1) (CBool b2)
     = return $ Const $ CBool $ b1 == b2
-evalPrim (:==) (CList (x:xs)) (CList (y:ys))
+evalPrim' (:==) (CList (x:xs)) (CList (y:ys))
     = case (eval' x, eval' y) of
            (Right (Const cx)
             , Right (Const cy)) ->
-                do xy  <- evalPrim (:==) cx cy
-                   xys <- evalPrim (:==) (CList xs) (CList ys)
+                do xy  <- evalPrim' (:==) cx cy
+                   xys <- evalPrim' (:==) (CList xs) (CList ys)
                    return $ Prim (:&&) :@ xy :@ xys
            _ -> Left $ Evaluating "can't compare non-constant values"
-evalPrim (:==) (CList []) (CList [])
+evalPrim' (:==) (CList []) (CList [])
     = return $ Const $ CBool $ True
-evalPrim (:==) (CList []) (CList _)
+evalPrim' (:==) (CList []) (CList _)
     = return $ Const $ CBool $ False
-evalPrim (:==) (CList _) (CList [])
+evalPrim' (:==) (CList _) (CList [])
     = return $ Const $ CBool $ False
-evalPrim (:!=) (CInt i1) (CInt i2)
+evalPrim' (:!=) (CInt i1) (CInt i2)
     = return $ Const $ CBool $ i1 /= i2
-evalPrim (:!=) (CFloat f1) (CFloat f2)
+evalPrim' (:!=) (CFloat f1) (CFloat f2)
     = return $ Const $ CBool $ f1 /= f2
-evalPrim (:!=) (CBool b1) (CBool b2)
+evalPrim' (:!=) (CBool b1) (CBool b2)
     = return $ Const $ CBool $ b1 /= b2
-evalPrim (:!=) (CList (x:xs)) (CList (y:ys))
+evalPrim' (:!=) (CList (x:xs)) (CList (y:ys))
     = case (eval' x, eval' y) of
            (Right (Const cx)
             , Right (Const cy)) ->
-                do xy  <- evalPrim (:!=) cx cy
-                   xys <- evalPrim (:!=) (CList xs) (CList ys)
+                do xy  <- evalPrim' (:!=) cx cy
+                   xys <- evalPrim' (:!=) (CList xs) (CList ys)
                    return $ Prim (:&&) :@ xy :@ xys
            _ -> Left $ Evaluating "can't compare non-constant values"
-evalPrim (:!=) (CList []) (CList [])
+evalPrim' (:!=) (CList []) (CList [])
     = return $ Const $ CBool $ False
-evalPrim (:!=) (CList []) (CList _)
+evalPrim' (:!=) (CList []) (CList _)
     = return $ Const $ CBool $ True
-evalPrim (:!=) (CList _) (CList [])
+evalPrim' (:!=) (CList _) (CList [])
     = return $ Const $ CBool $ True
-evalPrim p _ _ = Left $ Evaluating $ "invalid" ++ showOp p ++ " usage"
+evalPrim' p _ _ = Left $ Evaluating $ "invalid" ++ showOp p ++ " usage"
 
 subst :: Identity -> Term -> Term -> Term
 subst x es (Var v)
@@ -216,6 +208,18 @@ subst x es (Prim o)
     | otherwise     = Prim o
 subst _ _ e = e
 
+lambda :: [Identity] -> Term -> Term
+lambda [] e = e
+lambda xs e = Lambda xs e
+
+data Value = VInt Int
+           | VFloat Float
+           | VBool Bool
+           | VList [Value]
+           | VClosure [Identity] Term
+
+type ValueResult = Either Err Value
+
 toValue :: Term -> ValueResult
 toValue (Const (CInt i))
     = return $ VInt i
@@ -247,7 +251,3 @@ showValue (VClosure xs e)
     = case J.infer J.newJ (Lambda xs e) of
            Right (t, _) -> "fn: " ++ Typed.showPoly t
            Left _       -> "couldn't infer type of closure"
-
-lambda :: [Identity] -> Term -> Term
-lambda [] e = e
-lambda xs e = Lambda xs e

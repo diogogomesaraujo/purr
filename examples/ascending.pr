@@ -13,4 +13,4 @@ let ascending : size
     = ascending_rec size 1 []
 in
 
-ascending 10
+ascending 1000
