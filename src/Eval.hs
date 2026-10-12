@@ -260,9 +260,9 @@ eval' (Prim (:::) :@ e :@ Const (CList l))
 eval' (Prim (:::) :@ e1 :@ e2)
     = do e2' <- eval' e2
          return $ (Prim (:::) :@ e1 :@ e2')
-eval' (Prim p :@ e1@(Const _) :@ e2)
+eval' (Prim p :@ (Const c) :@ e2)
     = do e2' <- eval' e2
-         return $ Prim p :@ e1 :@ e2'
+         return $ Prim p :@ Const c :@ e2'
 eval' (Prim p :@ e1 :@ e2)
     = do e1' <- eval' e1
          return $ Prim p :@ e1' :@ e2
@@ -356,7 +356,7 @@ showValue (VList xs)
       _:l' -> "[" ++ l' ++ "]"
 showValue (VClosure xs e)
     = case J.infer J.newJ (Lambda xs e) of
-           Right (t, _) -> Typed.showPoly t
+           Right (t, _) -> "fn: " ++ Typed.showPoly t
            Left _       -> "couldn't infer type of closure"
 
 lambda :: [Identity] -> Term -> Term
