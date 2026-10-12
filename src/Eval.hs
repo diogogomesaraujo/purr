@@ -49,70 +49,6 @@ eval' (TypedLetRec x xs _ e1 e2)
     = eval' $ LetRec x xs e1 e2
 eval' (Fix e)
     = return $ e :@ Fix e
-eval' (Prim (:+) :@ (Const (CInt i1)) :@ (Const (CInt i2)))
-    = return $ Const $ CInt $ i1 + i2
-eval' (Prim (:+) :@ (Const (CFloat f1)) :@ (Const (CFloat f2)))
-    = return $ Const $ CFloat $ f1 + f2
-eval' (Prim (:+) :@ (Const (CInt i)) :@ e)
-    = do e' <- eval' e
-         return $ Prim (:+) :@ (Const (CInt i)) :@ e'
-eval' (Prim (:+) :@ e :@ (Const (CInt i)))
-    = do e' <- eval' e
-         return $ Prim (:+) :@ e' :@ (Const (CInt i))
-eval' (Prim (:+) :@ (Const (CFloat f)) :@ e)
-    = do e' <- eval' e
-         return $ Prim (:+) :@ (Const (CFloat f)) :@ e'
-eval' (Prim (:+) :@ e :@ (Const (CFloat f)))
-    = do e' <- eval' e
-         return $ Prim (:+) :@ e' :@ (Const (CFloat f))
-eval' (Prim (:-) :@ (Const (CInt i1)) :@ (Const (CInt i2)))
-    = return $ Const $ CInt $ i1 - i2
-eval' (Prim (:-) :@ (Const (CFloat f1)) :@ (Const (CFloat f2)))
-    = return $ Const $ CFloat $ f1 - f2
-eval' (Prim (:-) :@ (Const (CInt i)) :@ e)
-    = do e' <- eval' e
-         return $ Prim (:-) :@ (Const (CInt i)) :@ e'
-eval' (Prim (:-) :@ e :@ (Const (CInt i)))
-    = do e' <- eval' e
-         return $ Prim (:-) :@ e' :@ (Const (CInt i))
-eval' (Prim (:-) :@ (Const (CFloat f)) :@ e)
-    = do e' <- eval' e
-         return $ Prim (:-) :@ (Const (CFloat f)) :@ e'
-eval' (Prim (:-) :@ e :@ (Const (CFloat f)))
-    = do e' <- eval' e
-         return $ Prim (:-) :@ e' :@ (Const (CFloat f))
-eval' (Prim (:*) :@ (Const (CInt i1)) :@ (Const (CInt i2)))
-    = return $ Const $ CInt $ i1 * i2
-eval' (Prim (:*) :@ (Const (CFloat f1)) :@ (Const (CFloat f2)))
-    = return $ Const $ CFloat $ f1 * f2
-eval' (Prim (:*) :@ (Const (CInt i)) :@ e)
-    = do e' <- eval' e
-         return $ Prim (:*) :@ (Const (CInt i)) :@ e'
-eval' (Prim (:*) :@ e :@ (Const (CInt i)))
-    = do e' <- eval' e
-         return $ Prim (:*) :@ e' :@ (Const (CInt i))
-eval' (Prim (:*) :@ (Const (CFloat f)) :@ e)
-    = do e' <- eval' e
-         return $ Prim (:*) :@ (Const (CFloat f)) :@ e'
-eval' (Prim (:*) :@ e :@ (Const (CFloat f)))
-    = do e' <- eval' e
-         return $ Prim (:*) :@ e' :@ (Const (CFloat f))
-eval' (Prim (:/) :@ (Const (CInt i1)) :@ (Const (CInt i2)))
-    = return $ Const $ CInt $ i1 `div` i2
-eval' (Prim (:/) :@ (Const (CFloat f1)) :@ (Const (CFloat f2)))
-    = return $ Const $ CFloat $ f1 / f2
-eval' (Prim (:/) :@ (Const (CInt i)) :@ e)
-    = do e' <- eval' e
-         return $ Prim (:/) :@ (Const (CInt i)) :@ e'
-eval' (Prim (:/) :@ e :@ (Const (CInt i)))
-    = do e' <- eval' e
-         return $ Prim (:/) :@ e' :@ (Const (CInt i))
-eval' (Prim (:/) :@ (Const (CFloat f)) :@ e)
-    = do e' <- eval' e
-         return $ Prim (:/) :@ (Const (CFloat f)) :@ e'
-eval' (Prim (:/) :@ e :@ (Const (CFloat f)))
-    = do e' <- eval' e
-         return $ Prim (:/) :@ e' :@ (Const (CFloat f))
 eval' (Prim (:&&) :@ (Const (CBool False)) :@ _)
     = return $ Const $ CBool False
 eval' (Prim (:&&) :@ (Const (CBool True)) :@ e)
@@ -127,139 +63,13 @@ eval' (Prim (:||) :@ (Const (CBool False)) :@ e)
 eval' (Prim (:||) :@ e1 :@ e2)
     = do e1' <- eval' e1
          return $ Prim (:||) :@ e1' :@ e2
-eval' (Prim (:>) :@ (Const (CInt i1)) :@ (Const (CInt i2)))
-    = return $ Const $ CBool $ i1 > i2
-eval' (Prim (:>) :@ (Const (CFloat f1)) :@ (Const (CFloat f2)))
-    = return $ Const $ CBool $ f1 > f2
-eval' (Prim (:>) :@ (Const (CInt i)) :@ e)
-    = do e' <- eval' e
-         return $ Prim (:>) :@ (Const (CInt i)) :@ e'
-eval' (Prim (:>) :@ e :@ (Const (CInt i)))
-    = do e' <- eval' e
-         return $ Prim (:>) :@ e' :@ (Const (CInt i))
-eval' (Prim (:>) :@ (Const (CFloat f)) :@ e)
-    = do e' <- eval' e
-         return $ Prim (:>) :@ (Const (CFloat f)) :@ e'
-eval' (Prim (:>) :@ e :@ (Const (CFloat f)))
-    = do e' <- eval' e
-         return $ Prim (:>) :@ e' :@ (Const (CFloat f))
-eval' (Prim (:>=) :@ (Const (CInt i1)) :@ (Const (CInt i2)))
-    = return $ Const $ CBool $ i1 >= i2
-eval' (Prim (:>=) :@ (Const (CFloat f1)) :@ (Const (CFloat f2)))
-    = return $ Const $ CBool $ f1 >= f2
-eval' (Prim (:>=) :@ (Const (CInt i)) :@ e)
-    = do e' <- eval' e
-         return $ Prim (:>=) :@ (Const (CInt i)) :@ e'
-eval' (Prim (:>=) :@ e :@ (Const (CInt i)))
-    = do e' <- eval' e
-         return $ Prim (:>=) :@ e' :@ (Const (CInt i))
-eval' (Prim (:>=) :@ (Const (CFloat f)) :@ e)
-    = do e' <- eval' e
-         return $ Prim (:>=) :@ (Const (CFloat f)) :@ e'
-eval' (Prim (:>=) :@ e :@ (Const (CFloat f)))
-    = do e' <- eval' e
-         return $ Prim (:>=) :@ e' :@ (Const (CFloat f))
-eval' (Prim (:<) :@ (Const (CInt i1)) :@ (Const (CInt i2)))
-    = return $ Const $ CBool $ i1 < i2
-eval' (Prim (:<) :@ (Const (CFloat f1)) :@ (Const (CFloat f2)))
-    = return $ Const $ CBool $ f1 < f2
-eval' (Prim (:<) :@ (Const (CInt i)) :@ e)
-    = do e' <- eval' e
-         return $ Prim (:<) :@ (Const (CInt i)) :@ e'
-eval' (Prim (:<) :@ e :@ (Const (CInt i)))
-    = do e' <- eval' e
-         return $ Prim (:<) :@ e' :@ (Const (CInt i))
-eval' (Prim (:<) :@ (Const (CFloat f)) :@ e)
-    = do e' <- eval' e
-         return $ Prim (:<) :@ (Const (CFloat f)) :@ e'
-eval' (Prim (:<) :@ e :@ (Const (CFloat f)))
-    = do e' <- eval' e
-         return $ Prim (:<) :@ e' :@ (Const (CFloat f))
-eval' (Prim (:<=) :@ (Const (CInt i1)) :@ (Const (CInt i2)))
-    = return $ Const $ CBool $ i1 <= i2
-eval' (Prim (:<=) :@ (Const (CFloat f1)) :@ (Const (CFloat f2)))
-    = return $ Const $ CBool $ f1 <= f2
-eval' (Prim (:<=) :@ (Const (CInt i)) :@ e)
-    = do e' <- eval' e
-         return $ Prim (:<=) :@ (Const (CInt i)) :@ e'
-eval' (Prim (:<=) :@ e :@ (Const (CInt i)))
-    = do e' <- eval' e
-         return $ Prim (:<=) :@ e' :@ (Const (CInt i))
-eval' (Prim (:<=) :@ (Const (CFloat f)) :@ e)
-    = do e' <- eval' e
-         return $ Prim (:<=) :@ (Const (CFloat f)) :@ e'
-eval' (Prim (:<=) :@ e :@ (Const (CFloat f)))
-    = do e' <- eval' e
-         return $ Prim (:<=) :@ e' :@ (Const (CFloat f))
-eval' (Prim (:==) :@ (Const (CInt i1)) :@ (Const (CInt i2)))
-    = return $ Const $ CBool $ i1 == i2
-eval' (Prim (:==) :@ (Const (CFloat f1)) :@ (Const (CFloat f2)))
-    = return $ Const $ CBool $ f1 == f2
-eval' (Prim (:==) :@ (Const (CBool b1)) :@ (Const (CBool b2)))
-    = return $ Const $ CBool $ b1 == b2
-eval' (Prim (:==) :@ (Const (CList l1)) :@ (Const (CList l2)))
-    = return $ Const $ CBool $ l1 == l2
-eval' (Prim (:==) :@ (Const (CInt i)) :@ e)
-    = do e' <- eval' e
-         return $ Prim (:==) :@ (Const (CInt i)) :@ e'
-eval' (Prim (:==) :@ e :@ (Const (CInt i)))
-    = do e' <- eval' e
-         return $ Prim (:==) :@ e' :@ (Const (CInt i))
-eval' (Prim (:==) :@ (Const (CFloat f)) :@ e)
-    = do e' <- eval' e
-         return $ Prim (:==) :@ (Const (CFloat f)) :@ e'
-eval' (Prim (:==) :@ e :@ (Const (CFloat f)))
-    = do e' <- eval' e
-         return $ Prim (:==) :@ e' :@ (Const (CFloat f))
-eval' (Prim (:==) :@ (Const (CBool b)) :@ e)
-    = do e' <- eval' e
-         return $ Prim (:==) :@ (Const (CBool b)) :@ e'
-eval' (Prim (:==) :@ e :@ (Const (CBool b)))
-    = do e' <- eval' e
-         return $ Prim (:==) :@ e' :@ (Const (CBool b))
-eval' (Prim (:==) :@ (Const (CList l)) :@ e)
-    = do e' <- eval' e
-         return $ Prim (:==) :@ (Const (CList l)) :@ e'
-eval' (Prim (:==) :@ e :@ (Const (CList l)))
-    = do e' <- eval' e
-         return $ Prim (:==) :@ e' :@ (Const (CList l))
-eval' (Prim (:!=) :@ (Const (CInt i1)) :@ (Const (CInt i2)))
-    = return $ Const $ CBool $ i1 /= i2
-eval' (Prim (:!=) :@ (Const (CFloat f1)) :@ (Const (CFloat f2)))
-    = return $ Const $ CBool $ f1 /= f2
-eval' (Prim (:!=) :@ (Const (CBool b1)) :@ (Const (CBool b2)))
-    = return $ Const $ CBool $ b1 /= b2
-eval' (Prim (:!=) :@ (Const (CList l1)) :@ (Const (CList l2)))
-    = return $ Const $ CBool $ l1 /= l2
-eval' (Prim (:!=) :@ (Const (CInt i)) :@ e)
-        = do e' <- eval' e
-             return $ Prim (:!=) :@ (Const (CInt i)) :@ e'
-eval' (Prim (:!=) :@ e :@ (Const (CInt i)))
-    = do e' <- eval' e
-         return $ Prim (:!=) :@ e' :@ (Const (CInt i))
-eval' (Prim (:!=) :@ (Const (CFloat f)) :@ e)
-    = do e' <- eval' e
-         return $ Prim (:!=) :@ (Const (CFloat f)) :@ e'
-eval' (Prim (:!=) :@ e :@ (Const (CFloat f)))
-    = do e' <- eval' e
-         return $ Prim (:!=) :@ e' :@ (Const (CFloat f))
-eval' (Prim (:!=) :@ (Const (CBool b)) :@ e)
-    = do e' <- eval' e
-         return $ Prim (:!=) :@ (Const (CBool b)) :@ e'
-eval' (Prim (:!=) :@ e :@ (Const (CBool b)))
-    = do e' <- eval' e
-         return $ Prim (:!=) :@ e' :@ (Const (CBool b))
-eval' (Prim (:!=) :@ (Const (CList l)) :@ e)
-    = do e' <- eval' e
-         return $ Prim (:!=) :@ (Const (CList l)) :@ e'
-eval' (Prim (:!=) :@ e :@ (Const (CList l)))
-    = do e' <- eval' e
-         return $ Prim (:!=) :@ e' :@ (Const (CList l))
 eval' (Prim (:::) :@ e :@ Const (CList l))
     = return $ Const $ CList $ e:l
 eval' (Prim (:::) :@ e1 :@ e2)
     = do e2' <- eval' e2
          return $ (Prim (:::) :@ e1 :@ e2')
+eval' (Prim p :@ Const c1 :@ Const c2)
+    = evalPrim p c1 c2
 eval' (Prim p :@ (Const c) :@ e2)
     = do e2' <- eval' e2
          return $ Prim p :@ Const c :@ e2'
@@ -284,6 +94,85 @@ eval' (e1 :@ e2)
     = do e1' <- eval' e1
          return $ e1' :@ e2
 eval' _ = Left $ Evaluating "couldn't reduce the term further"
+
+evalPrim :: Operation -> Constant -> Constant -> EvalResult
+evalPrim (:+) (CInt i1) (CInt i2)
+    = return $ Const $ CInt $ i1 + i2
+evalPrim (:+) (CFloat f1) (CFloat f2)
+    = return $ Const $ CFloat $ f1 + f2
+evalPrim (:-) (CInt i1) (CInt i2)
+    = return $ Const $ CInt $ i1 - i2
+evalPrim (:-) (CFloat f1) (CFloat f2)
+    = return $ Const $ CFloat $ f1 - f2
+evalPrim (:*) (CInt i1) (CInt i2)
+    = return $ Const $ CInt $ i1 - i2
+evalPrim (:*) (CFloat f1) (CFloat f2)
+    = return $ Const $ CFloat $ f1 - f2
+evalPrim (:/) (CInt _) (CInt 0)
+    = Left $ Evaluating "division by zero"
+evalPrim (:/) (CFloat _) (CFloat 0.0)
+    = Left $ Evaluating "division by zero"
+evalPrim (:/) (CInt i1) (CInt i2)
+    = return $ Const $ CInt $ i1 `div` i2
+evalPrim (:/) (CFloat f1) (CFloat f2)
+    = return $ Const $ CFloat $ f1 / f2
+evalPrim (:>) (CInt i1) (CInt i2)
+    = return $ Const $ CBool $ i1 > i2
+evalPrim (:>) (CFloat f1) (CFloat f2)
+    = return $ Const $ CBool $ f1 > f2
+evalPrim (:<) (CInt i1) (CInt i2)
+    = return $ Const $ CBool $ i1 < i2
+evalPrim (:<) (CFloat f1) (CFloat f2)
+    = return $ Const $ CBool $ f1 < f2
+evalPrim (:>=) (CInt i1) (CInt i2)
+    = return $ Const $ CBool $ i1 >= i2
+evalPrim (:>=) (CFloat f1) (CFloat f2)
+    = return $ Const $ CBool $ f1 >= f2
+evalPrim (:<=) (CInt i1) (CInt i2)
+    = return $ Const $ CBool $ i1 <= i2
+evalPrim (:<=) (CFloat f1) (CFloat f2)
+    = return $ Const $ CBool $ f1 <= f2
+evalPrim (:==) (CInt i1) (CInt i2)
+    = return $ Const $ CBool $ i1 == i2
+evalPrim (:==) (CFloat f1) (CFloat f2)
+    = return $ Const $ CBool $ f1 == f2
+evalPrim (:==) (CBool b1) (CBool b2)
+    = return $ Const $ CBool $ b1 == b2
+evalPrim (:==) (CList (x:xs)) (CList (y:ys))
+    = case (eval' x, eval' y) of
+           (Right (Const cx)
+            , Right (Const cy)) ->
+                do xy  <- evalPrim (:==) cx cy
+                   xys <- evalPrim (:==) (CList xs) (CList ys)
+                   return $ Prim (:&&) :@ xy :@ xys
+           _ -> Left $ Evaluating "can't compare non-constant values"
+evalPrim (:==) (CList []) (CList [])
+    = return $ Const $ CBool $ True
+evalPrim (:==) (CList []) (CList _)
+    = return $ Const $ CBool $ False
+evalPrim (:==) (CList _) (CList [])
+    = return $ Const $ CBool $ False
+evalPrim (:!=) (CInt i1) (CInt i2)
+    = return $ Const $ CBool $ i1 /= i2
+evalPrim (:!=) (CFloat f1) (CFloat f2)
+    = return $ Const $ CBool $ f1 /= f2
+evalPrim (:!=) (CBool b1) (CBool b2)
+    = return $ Const $ CBool $ b1 /= b2
+evalPrim (:!=) (CList (x:xs)) (CList (y:ys))
+    = case (eval' x, eval' y) of
+           (Right (Const cx)
+            , Right (Const cy)) ->
+                do xy  <- evalPrim (:!=) cx cy
+                   xys <- evalPrim (:!=) (CList xs) (CList ys)
+                   return $ Prim (:&&) :@ xy :@ xys
+           _ -> Left $ Evaluating "can't compare non-constant values"
+evalPrim (:!=) (CList []) (CList [])
+    = return $ Const $ CBool $ False
+evalPrim (:!=) (CList []) (CList _)
+    = return $ Const $ CBool $ True
+evalPrim (:!=) (CList _) (CList [])
+    = return $ Const $ CBool $ True
+evalPrim p _ _ = Left $ Evaluating $ "invalid" ++ showOp p ++ " usage"
 
 subst :: Identity -> Term -> Term -> Term
 subst x es (Var v)
