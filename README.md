@@ -31,19 +31,12 @@ type ::= int | bool | float | string | type -> type | [type]
 
 ### Examples
 
-A wrapper for the `cons` operation can be defined by the following expressions (semantically identical):
-
+The type for the `map` function is the following:
 ```haskell
-let my_cons : x xs = x:xs in my_cons 3 [1,2]
-```
-```haskell
-let my_cons : x xs : a -> [a] -> [a] = x:xs in my_cons 3 [1,2]
-```
-```haskell
-let my_cons : x xs : int -> [int] -> [int] = x:xs in my_cons 3 [1,2]
+map : (a -> b) -> [a] -> [b]
 ```
 
-Type polymorphism can be demonstrated by the following expression, where
+And type polymorphism can be demonstrated by the following expression, where
 `map` receives functions with different types:
 
 ```haskell
