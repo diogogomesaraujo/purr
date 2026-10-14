@@ -89,8 +89,10 @@ There are several examples you can try in the [`examples`](./examples) folder su
 1. Increment
 ```haskell
 let incr :=
-  fn x -> x + 1
-in map incr [0,1,2]
+  \x . x + 1
+in
+
+map incr [0,1,2]
 ```
 
 2. Fibonnaci Sequence
